@@ -51,7 +51,7 @@ nsidc_jenkins::jobs:
       librarian-puppet clean
       librarian-puppet update
       cd -
-      sudo puppet apply --environment=ci --debug --verbose --modulepath=./puppet/modules --hiera_config=./puppet/hiera.%{hiera('project')}.yaml ./puppet/site.pp
+      sudo puppet apply --environment=ci --debug --verbose --modulepath=./puppet/modules --hiera_config=./puppet/hiera.yaml ./puppet/site.pp
 
       # Because running `puppet apply` modifies the config.xml for each job
       # defined in ci.yaml, Jenkins has trouble triggering the next job through

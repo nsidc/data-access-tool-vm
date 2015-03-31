@@ -2,38 +2,25 @@
 hiera_include('classes')
 
 if $environment == 'ci' {
-  # install npm, grunt
-  include nodejs
 
-  package { 'grunt-cli':
-    ensure => present,
-    provider => 'npm',
-    require => Class['nodejs'],
+  class { 'nodejs':
+    version      => 'stable',
+    make_install => false,
   }
 
-  # willdurand-nodejs installs the executables into
-  # /usr/local/node/node-default/bin/, we want access to them on the
-  # PATH, so create symlinks in /usr/local/bin
-
-  $node_path = '/usr/local/node/node-default/bin'
-
-  file { '/usr/local/bin/node':
-    ensure => 'link',
-    target => "$node_path/node",
+  file { '/usr/bin/node':
+    ensure  => 'link',
+    target  => '/usr/local/node/node-default/bin/node',
     require => Class['nodejs']
   }
 
-  file { '/usr/local/bin/npm':
-    ensure => 'link',
-    target => "$node_path/npm",
+  $cmd = 'sudo /usr/local/node/node-default/bin/npm install grunt-cli -g'
+  exec { 'install-node-deps':
+    command => $cmd,
+    path    => '/usr/bin',
     require => Class['nodejs']
   }
 
-  file { '/usr/local/bin/grunt':
-    ensure => 'link',
-    target => "$node_path/grunt",
-    require => Package['grunt-cli']
-  }
 } else {
 
   $hiera_project = hiera('project')
