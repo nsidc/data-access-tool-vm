@@ -106,7 +106,9 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
     wrappers:
       - name: xvnc
-    command: grunt acceptance --environment=integration
+    command: |
+      export ENVIRONMENT=integration
+      grunt acceptance --environment=integration
 
 
   "%{hiera('project')}_B01_QA_Checkout_Project":
@@ -156,6 +158,7 @@ nsidc_jenkins::jobs:
     wrappers:
       - name: xvnc
     command: |
+      export ENVIRONMENT=qa
       grunt acceptance --environment=qa
 
   "%{hiera('project')}_C01_Staging_Checkout_Project":
@@ -205,6 +208,7 @@ nsidc_jenkins::jobs:
     wrappers:
       - name: xvnc
     command: |
+      export ENVIRONMENT=staging
       grunt acceptance --environment=staging
 
 
