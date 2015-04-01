@@ -11,3 +11,4 @@ mod "nsidc/nsidc_jenkins",
 
 mod 'jfryman/nginx'
 mod 'willdurand/nodejs'
+mod '3fs/phantomjs'
