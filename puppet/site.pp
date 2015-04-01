@@ -29,6 +29,14 @@ if $environment == 'ci' {
       timeout => 300
   }
 
+  # For acceptance tests
+  package { 'vnc4server': } ->
+  package { 'expect': } ->
+  exec { 'set_vnc_password':
+    path => '/usr/bin/',
+    command => 'sudo -i -u jenkins tr -dc A-Z < /dev/urandom | head -c 8 | /usr/bin/expect -c "set passwd [read stdin]; spawn sudo -i -u jenkins vncpasswd; expect \"Password:\"; send -- \"\$passwd\r\"; expect \"Verify:\"; send -- \"\$passwd\r\r\";exit;"'
+  }
+
 } else {
 
   $hiera_project = hiera('project')
