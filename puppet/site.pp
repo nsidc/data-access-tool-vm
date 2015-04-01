@@ -14,7 +14,7 @@ if $environment == 'ci' {
     require => Class['nodejs']
   }
 
-  $cmd = 'sudo /usr/local/node/node-default/bin/npm install grunt-cli -g'
+  $cmd = 'sudo /usr/local/node/node-default/bin/npm install grunt-cli bower -g'
   exec { 'install-node-deps':
     command => $cmd,
     path    => '/usr/bin',
