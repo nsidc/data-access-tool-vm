@@ -7,4 +7,10 @@
   - scm_creds
   - vagrant-nsidc
 
-classes: []
+classes:
+  - nsidc_nfs
+
+nsidc_nfs::sharemounts:
+  /export/apps/live/integration:
+    project: apps
+    share: live/integration
