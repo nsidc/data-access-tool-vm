@@ -93,7 +93,7 @@ nsidc_jenkins::jobs:
 
       # provision, including rsyncing build/ to /vagrant
       vagrant nsidc hijack --env=$ENV || true
-      vagrant nsidc up --env=$ENV --provision;
+      vagrant nsidc up --env=$ENV --provision
 
       # deploy app from /vagrant/build to /opt/%{hiera('project')}
       grunt deploy --environment=$ENV
@@ -144,7 +144,7 @@ nsidc_jenkins::jobs:
 
       # provision, including rsyncing build/ to /vagrant
       vagrant nsidc hijack --env=$ENV || true
-      vagrant nsidc up --env=$ENV --provision;
+      vagrant nsidc up --env=$ENV --provision
 
       # deploy app from /vagrant/build to /opt/%{hiera('project')}
       grunt deploy --environment=$ENV
@@ -166,12 +166,12 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/staging
     parameters:
       - type: string
-        name: tag
-        description: git tag to deploy to staging
-        default: latest 
+        name: ref
+        description: git ref (branch, tag, or SHA) to checkout
+        default: qa
     git:
       repo: "%{hiera('gitrepo')}"
-    command: git checkout refs/tags/$tag
+    command: git checkout $ref
     trigger_job: "%{hiera('project')}_C02_Staging_Install_Dependencies"
 
   "%{hiera('project')}_C02_Staging_Install_Dependencies":
@@ -194,7 +194,8 @@ nsidc_jenkins::jobs:
 
       # provision, including rsyncing build/ to /vagrant
       vagrant nsidc hijack --env=$ENV || true
-      vagrant nsidc up --env=$ENV --provision;
+      vagrant nsidc destroy --env=$ENV || true
+      vagrant nsidc up --env=$ENV --provision
 
       # deploy app from /vagrant/build to /opt/%{hiera('project')}
       grunt deploy --environment=$ENV
@@ -217,12 +218,12 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/blue
     parameters:
       - type: string
-        name: tag
-        description: git tag to deploy to blue
-        default: "%{hiera('project')}-staging"
+        name: ref
+        description: git ref (branch, tag, or SHA) to checkout
+        default: qa
     git:
       repo: "%{hiera('gitrepo')}"
-    command: git checkout refs/tags/$tag
+    command: git checkout $ref
     trigger_job: "%{hiera('project')}_D02_Blue_Install_Dependencies"
 
   "%{hiera('project')}_D02_Blue_Install_Dependencies":
@@ -242,6 +243,11 @@ nsidc_jenkins::jobs:
 
       # compile jade and sass, minify js into build/
       grunt dist
+
+      # provision, including rsyncing build/ to /vagrant
+      vagrant nsidc hijack --env=$ENV || true
+      vagrant nsidc destroy --env=$ENV || true
+      vagrant nsidc up --env=$ENV --provision
 
       # deploy app from /vagrant/build to /opt/%{hiera('project')}
       grunt deploy --environment=$ENV
