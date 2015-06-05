@@ -41,27 +41,9 @@ nsidc_jenkins::jobs:
       poll_scm: true
     command: |
       git checkout $ref
-    trigger_job: "%{hiera('project')}_A02_Integration_Configure_System"
+    trigger_job: "%{hiera('project')}_A02_Integration_Install_Dependencies"
 
-  "%{hiera('project')}_A02_Integration_Configure_System":
-    description: Use puppet to install system dependencies, like nginx and Bundler
-    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
-    command: |
-      cd puppet
-      librarian-puppet clean
-      librarian-puppet update
-      cd -
-      sudo puppet apply --environment=ci --debug --verbose --modulepath=./puppet/modules --hiera_config=./puppet/hiera.yaml ./puppet/site.pp
-
-      # Because running `puppet apply` modifies the config.xml for each job
-      # defined in ci.yaml, Jenkins has trouble triggering the next job through
-      # normal methods (ie, using the trigger_job param), but we can use the
-      # Jenkins API to trigger the next job with curl. Just make sure the name
-      # of the job in the curl command is correct:
-      curl localhost:8080/job/%{hiera('project')}_A03_Integration_Install_Dependencies/build
-    trigger_job: "%{hiera('project')}_A03_Integration_Install_Dependencies"
-
-  "%{hiera('project')}_A03_Integration_Install_Dependencies":
+  "%{hiera('project')}_A02_Integration_Install_Dependencies":
     description: >
       Install Node packages and gems into the workspace to build the project
       before deployment, and run acceptance tests afterward.
@@ -69,21 +51,21 @@ nsidc_jenkins::jobs:
     command: |
       npm install
       bower install
-    trigger_job: "%{hiera('project')}_A04_Integration_Check_Syntax"
+    trigger_job: "%{hiera('project')}_A03_Integration_Check_Syntax"
 
-  "%{hiera('project')}_A04_Integration_Check_Syntax":
+  "%{hiera('project')}_A03_Integration_Check_Syntax":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
     command: |
       grunt jshint
-    trigger_job: "%{hiera('project')}_A05_Integration_Run_Unit_Tests"
+    trigger_job: "%{hiera('project')}_A04_Integration_Run_Unit_Tests"
 
-  "%{hiera('project')}_A05_Integration_Run_Unit_Tests":
+  "%{hiera('project')}_A04_Integration_Run_Unit_Tests":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
     command: |
       grunt unit
-    trigger_job: "%{hiera('project')}_A06_Integration_Provision"
+    trigger_job: "%{hiera('project')}_A05_Integration_Provision"
 
-  "%{hiera('project')}_A06_Integration_Provision":
+  "%{hiera('project')}_A05_Integration_Provision":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
     command: |
       ENV=integration
@@ -100,9 +82,9 @@ nsidc_jenkins::jobs:
 
       # update deployment tag
       grunt updateTag --environment=$ENV
-    trigger_job: "%{hiera('project')}_A07_Integration_Run_Acceptance_Tests"
+    trigger_job: "%{hiera('project')}_A06_Integration_Run_Acceptance_Tests"
 
-  "%{hiera('project')}_A07_Integration_Run_Acceptance_Tests":
+  "%{hiera('project')}_A06_Integration_Run_Acceptance_Tests":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
     wrappers:
       - name: xvnc
@@ -319,3 +301,14 @@ nsidc_jenkins::jobs:
       if $staging; then
         hijack_and_destroy staging
       fi
+
+
+  "%{hiera('project')}_F01_Configure_System":
+    description: Use puppet to install system dependencies, like nginx and Bundler
+    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
+    command: |
+      cd puppet
+      librarian-puppet clean
+      librarian-puppet update
+      cd -
+      sudo puppet apply --environment=ci --debug --verbose --modulepath=./puppet/modules --hiera_config=./puppet/hiera.yaml ./puppet/site.pp
