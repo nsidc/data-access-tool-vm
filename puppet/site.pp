@@ -12,7 +12,7 @@ file { '/usr/bin/node':
   require => Class['nodejs']
 }
 
-$cmd = 'sudo /usr/local/node/node-default/bin/npm install grunt-cli bower -g'
+$cmd = 'sudo /usr/local/node/node-default/bin/npm install grunt-cli jspm -g'
 exec { 'install-node-deps':
   command => $cmd,
   path    => '/usr/bin',
