@@ -50,7 +50,8 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
     command: |
       npm install
-      bower install
+      jspm install
+      jspm install --dev
     trigger_job: "%{hiera('project')}_A03_Integration_Check_Syntax"
 
   "%{hiera('project')}_A03_Integration_Check_Syntax":
@@ -113,7 +114,8 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/qa
     command: |
       npm install
-      bower install
+      jspm install
+      jspm install --dev
     trigger_job: "%{hiera('project')}_B03_QA_Provision"
 
   "%{hiera('project')}_B03_QA_Provision":
@@ -163,7 +165,8 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/staging
     command: |
       npm install
-      bower install
+      jspm install
+      jspm install --dev
     trigger_job: "%{hiera('project')}_C03_Staging_Provision"
 
   "%{hiera('project')}_C03_Staging_Provision":
@@ -215,7 +218,8 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/blue
     command: |
       npm install
-      bower install
+      jspm install
+      jspm install --dev
     trigger_job: "%{hiera('project')}_D03_Blue_Provision"
 
   "%{hiera('project')}_D03_Blue_Provision":
