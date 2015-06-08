@@ -57,7 +57,7 @@ nsidc_jenkins::jobs:
   "%{hiera('project')}_A03_Integration_Check_Syntax":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/integration
     command: |
-      grunt jshint
+      grunt lint
     trigger_job: "%{hiera('project')}_A04_Integration_Run_Unit_Tests"
 
   "%{hiera('project')}_A04_Integration_Run_Unit_Tests":
