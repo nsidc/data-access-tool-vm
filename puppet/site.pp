@@ -1,16 +1,6 @@
 # Load modules and classes
-include nsidc_miniconda
 
 if $environment != 'ci' {
-
-  nsidc_miniconda::install { '/opt/miniconda':
-    version => '3.9.1',
-    build   => true
-  }
-
-  nsidc_miniconda::config { 'miniconda_config':
-    channels => ['https://conda.binstar.org/nsidc/channel/main', 'https://conda.binstar.org/nsidc/channel/dev']
-  }
 
   class { 'nodejs':
     version      => 'stable',
