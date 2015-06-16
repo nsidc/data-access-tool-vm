@@ -6,3 +6,5 @@
   - puppet/hiera
   - scm_creds
   - vagrant-nsidc
+
+classes: []
