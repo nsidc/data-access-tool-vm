@@ -1,5 +1,4 @@
 # Load modules and classes
-hiera_include('classes')
 include nsidc_miniconda
 
 if $environment != 'ci' {
