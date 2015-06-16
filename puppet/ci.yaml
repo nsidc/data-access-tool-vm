@@ -47,4 +47,4 @@ nsidc_jenkins::jobs:
         default: "integration"
     command: |
       vagrant nsidc hijack --env=$target_environment || true
-      vagrant nsidc up --env=$target_environment
+      vagrant nsidc up --env=$target_environment --provision
