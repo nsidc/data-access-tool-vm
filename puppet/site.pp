@@ -9,7 +9,7 @@ if $environment != 'ci' {
     build   => true
   }
 
-  nsidc_miniconda::config {
+  nsidc_miniconda::config { 'miniconda_config':
     channels => ['https://conda.binstar.org/nsidc/channel/main', 'https://conda.binstar.org/nsidc/channel/dev']
   }
 
