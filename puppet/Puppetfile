@@ -1,14 +1,13 @@
 forge "https://forgeapi.puppetlabs.com"
 
-# Module for access to NSIDC Enterprise storage
-mod "nsidc/nsidc_nfs",
-  :git => "git@bitbucket.org:/nsidc/puppet-nsidc-nfs.git"
-
 # Module for creating NSIDC Jenkins servers
 mod "nsidc/nsidc_jenkins",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-jenkins.git",
   :ref => 'latest'
 
+mod "nsidc/nsidc_miniconda",
+  :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",
+  :ref => 'latest'
+
 mod 'jfryman/nginx'
 mod 'willdurand/nodejs'
-mod '3fs/phantomjs'
