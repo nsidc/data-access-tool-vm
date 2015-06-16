@@ -51,8 +51,9 @@ if $environment != 'ci' {
   }
 
   nginx::resource::location { '/services':
+    vhost    => 'icebridge',
     location => '/services',
-    proxy => 'http://icebridge-services'
+    proxy    => 'http://icebridge-services'
   }
 
   # remove default nginx config
