@@ -56,4 +56,8 @@ if $environment != 'ci' {
   exec { "rm-default-conf":
     command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
   }
+
+  file { '/opt/icebridge-portal':
+    ensure => 'directory'
+  }
 }
