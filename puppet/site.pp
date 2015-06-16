@@ -23,7 +23,7 @@ if $environment != 'ci' {
   exec { 'install-node-deps':
     command => $cmd,
     path    => '/usr/bin',
-    require => Class['nodejs']
+    require => File['/usr/bin/npm']
   }
 
   $hiera_project = hiera('project')
