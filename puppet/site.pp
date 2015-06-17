@@ -30,8 +30,6 @@ if $environment != 'ci' {
   $hiera_project = hiera('project')
   $application_root = "/opt/${hiera_project}"
 
-  class { 'nginx': }
-
   exec { "rm-default-conf":
     command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
   }
