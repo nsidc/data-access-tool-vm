@@ -11,17 +11,15 @@ nginx::nginx_upstreams:
 nginx::nginx_vhosts:
   'icebridge':
     www_root: '/opt/icebridge-services'
+  'localhost':
+    www_root: '/usr/share/nginx/html'
+    ensure: absent
 
 nginx::nginx_locations:
   '/services':
     vhost: 'icebridge'
     location: '/services'
     proxy: 'http://icebridge-services'
-
-nginx::nginx_vhosts:
-  'localhost':
-    www_root: '/usr/share/nginx/html'
-    ensure: absent
 
 nsidc_miniconda::install:
   /opt/miniconda:
