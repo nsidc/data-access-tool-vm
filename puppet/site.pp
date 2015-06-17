@@ -14,6 +14,11 @@ if $environment != 'ci' {
     require => Class['nodejs']
   }
 
+  file { '/etc/nginx/sites-available/icebridge.conf':
+    ensure => file,
+    source => "/vagrant/puppet/files/nginx/icebridge.conf"
+  }
+
   file { '/usr/bin/npm':
     ensure  => 'link',
     target  => '/usr/local/node/node-default/bin/npm',
