@@ -32,27 +32,6 @@ if $environment != 'ci' {
 
   class { 'nginx': }
 
-  # TODO: Fix the port, maybe
-  nginx::resource::upstream { 'icebridge-services':
-    members => ['localhost:5000'],
-  }
-
-  nginx::resource::vhost { 'icebridge':
-    www_root => $application_root
-  }
-
-  nginx::resource::location { '/services':
-    vhost    => 'icebridge',
-    location => '/services',
-    proxy    => 'http://icebridge-services'
-  }
-
-  # remove default nginx config
-  nginx::resource::vhost { 'localhost' :
-    www_root => '/usr/share/nginx/html',
-    ensure  =>  absent
-  }
-
   exec { "rm-default-conf":
     command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
   }

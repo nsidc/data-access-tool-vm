@@ -1,5 +1,27 @@
 classes:
   - nsidc_miniconda
+  - nginx
+
+nginx::nginx_upstreams:
+  'icebridge-services':
+    ensure: present
+    members:
+      - localhost:5000
+
+nginx::nginx_vhosts:
+  'icebridge':
+    www_root: '/opt/icebridge-services'
+
+nginx::nginx_locations:
+  '/services':
+    vhost: 'icebridge'
+    location: '/services'
+    proxy: 'http://icebridge-services'
+
+nginx::nginx_vhosts:
+  'localhost':
+    www_root: '/usr/share/nginx/html'
+    ensure: absent
 
 nsidc_miniconda::install:
   /opt/miniconda:
@@ -9,3 +31,5 @@ nsidc_miniconda::install:
       channels:
         binstar_main: true
         binstar_dev: true
+    packages:
+      - gunicorn
