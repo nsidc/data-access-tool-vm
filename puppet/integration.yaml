@@ -9,3 +9,5 @@ nsidc_miniconda::install:
       channels:
         binstar_main: true
         binstar_dev: true
+    packages:
+      - gunicorn
