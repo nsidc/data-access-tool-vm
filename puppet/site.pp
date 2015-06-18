@@ -7,7 +7,9 @@ if $environment != 'ci' {
 #  NGINX
 ############
 
-  include nginx
+  package { 'nginx':
+    ensure => 'present'
+  }
 
   exec { 'enable-nginx-logging':
     command => 'sudo chown -R www-data:www-data /var/log/nginx; sudo chmod -R 755 /var/log/nginx',
@@ -26,8 +28,11 @@ if $environment != 'ci' {
     ensure  => link,
     path    => '/etc/nginx/sites-enabled/icebridge',
     target  => '/etc/nginx/sites-available/icebridge',
-    notify  => Service["nginx"],
     require => File['add-nginx-site']
+  }
+
+  exec { "/usr/bin/sudo service nginx restart":
+    require => File["enable-nginx-site"]
   }
 
   exec { "rm-default-conf":
@@ -80,4 +85,11 @@ if $environment != 'ci' {
     owner  => 'vagrant'
   }
 
+  packagecloud::repo { "rabbitmq/rabbitmq-server":
+    type => 'deb'
+  }
+
+  package { 'rabbitmq-server':
+    ensure => 'present'
+  }
 }
