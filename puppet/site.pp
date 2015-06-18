@@ -41,6 +41,7 @@ if $environment != 'ci' {
   }
 
   file { '/opt/icebridge-portal':
-    ensure => 'directory'
+    ensure => 'directory',
+    owner  => 'vagrant'
   }
 }
