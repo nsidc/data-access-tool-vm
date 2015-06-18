@@ -9,5 +9,5 @@ mod "nsidc/nsidc_miniconda",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",
   :ref => 'latest'
 
-mod 'jfryman/nginx'
 mod 'willdurand/nodejs'
+mod 'computology/packagecloud', '0.2.10'

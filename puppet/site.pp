@@ -42,4 +42,12 @@ if $environment != 'ci' {
   file { '/opt/icebridge-portal':
     ensure => 'directory'
   }
+
+  packagecloud::repo { "rabbitmq/rabbitmq-server":
+    type => 'deb'
+  }
+
+  package { 'rabbitmq-server':
+    ensure => 'present'
+  }
 }
