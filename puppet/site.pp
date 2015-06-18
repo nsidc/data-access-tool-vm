@@ -7,7 +7,9 @@ if $environment != 'ci' {
 #  NGINX
 ############
 
-  include nginx
+  package { 'nginx':
+    ensure => 'present'
+  }
 
   exec { 'enable-nginx-logging':
     command => 'sudo chown -R www-data:www-data /var/log/nginx; sudo chmod -R 755 /var/log/nginx',
