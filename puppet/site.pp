@@ -28,8 +28,11 @@ if $environment != 'ci' {
     ensure  => link,
     path    => '/etc/nginx/sites-enabled/icebridge',
     target  => '/etc/nginx/sites-available/icebridge',
-    notify  => Service["nginx"],
     require => File['add-nginx-site']
+  }
+
+  exec { "/usr/bin/sudo service nginx restart":
+    require => File["enable-nginx-site"]
   }
 
   exec { "rm-default-conf":
