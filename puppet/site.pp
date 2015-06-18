@@ -3,6 +3,41 @@ hiera_include('classes')
 
 if $environment != 'ci' {
 
+############
+#  NGINX
+############
+
+  include nginx
+
+  exec { 'enable-nginx-logging':
+    command => 'sudo chown -R www-data:www-data /var/log/nginx; sudo chmod -R 755 /var/log/nginx',
+    path    => '/bin:/usr/bin',
+    require => Package['nginx']
+  }
+
+  file { 'add-nginx-site':
+    path    => '/etc/nginx/sites-available/icebridge',
+    source => "/vagrant/puppet/files/nginx/icebridge.conf",
+    ensure  => file,
+    require => Package['nginx'],
+  }
+
+  file { 'enable-nginx-site':
+    ensure  => link,
+    path    => '/etc/nginx/sites-enabled/icebridge',
+    target  => '/etc/nginx/sites-available/icebridge',
+    notify  => Service["nginx"],
+    require => File['add-nginx-site']
+  }
+
+  exec { "rm-default-conf":
+    command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
+  }
+
+############
+#  NODE
+############
+
   class { 'nodejs':
     version      => 'stable',
     make_install => false,
@@ -12,11 +47,6 @@ if $environment != 'ci' {
     ensure  => 'link',
     target  => '/usr/local/node/node-default/bin/node',
     require => Class['nodejs']
-  }
-
-  file { '/etc/nginx/sites-available/icebridge.conf':
-    ensure => file,
-    source => "/vagrant/puppet/files/nginx/icebridge.conf"
   }
 
   file { '/usr/bin/npm':
@@ -35,12 +65,19 @@ if $environment != 'ci' {
   $hiera_project = hiera('project')
   $application_root = "/opt/${hiera_project}"
 
-  exec { "rm-default-conf":
-    command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
+  file { '/etc/init/icebridge-services.conf':
+    ensure => file,
+    source => "/vagrant/puppet/files/upstart/icebridge-services.conf"
   }
 
   file { '/opt/icebridge-portal':
-    ensure => 'directory'
+    ensure => 'directory',
+    owner  => 'vagrant'
+  }
+
+  file { '/opt/icebridge-services':
+    ensure => 'directory',
+    owner  => 'vagrant'
   }
 
   packagecloud::repo { "rabbitmq/rabbitmq-server":
