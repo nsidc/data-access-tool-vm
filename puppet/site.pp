@@ -30,6 +30,10 @@ if $environment != 'ci' {
     require => File['add-nginx-site']
   }
 
+  exec { "rm-default-conf":
+    command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
+  }
+
 ############
 #  NODE
 ############
@@ -61,12 +65,19 @@ if $environment != 'ci' {
   $hiera_project = hiera('project')
   $application_root = "/opt/${hiera_project}"
 
-  exec { "rm-default-conf":
-    command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
+  file { '/etc/init/icebridge-services.conf':
+    ensure => file,
+    source => "/vagrant/puppet/files/upstart/icebridge-services.conf"
   }
 
   file { '/opt/icebridge-portal':
     ensure => 'directory',
     owner  => 'vagrant'
   }
+
+  file { '/opt/icebridge-services':
+    ensure => 'directory',
+    owner  => 'vagrant'
+  }
+
 }
