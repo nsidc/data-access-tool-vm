@@ -67,12 +67,18 @@ if $environment != 'ci' {
     require => File['/usr/bin/npm']
   }
 
-  $hiera_project = hiera('project')
-  $application_root = "/opt/${hiera_project}"
+###########
+#
+###########
 
   file { '/etc/init/icebridge-services.conf':
     ensure => file,
     source => "/vagrant/puppet/files/upstart/icebridge-services.conf"
+  }
+
+  file { '/etc/init/celery-workers.conf':
+    ensure => file,
+    source => "/vagrant/puppet/files/upstart/celery-workers.conf"
   }
 
   file { '/opt/icebridge-portal':
