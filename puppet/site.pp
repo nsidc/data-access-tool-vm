@@ -98,4 +98,6 @@ if $environment != 'ci' {
   package { 'rabbitmq-server':
     ensure => 'present'
   }
+
+  include '::mongodb::server'
 }
