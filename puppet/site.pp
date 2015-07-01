@@ -86,6 +86,11 @@ if $environment != 'ci' {
     owner  => 'vagrant'
   }
 
+  file { '/opt/icebridge-services':
+    ensure => 'directory',
+    owner  => 'vagrant'
+  }
+
   packagecloud::repo { "rabbitmq/rabbitmq-server":
     type => 'deb'
   }
@@ -95,9 +100,4 @@ if $environment != 'ci' {
   }
 
   include '::mongodb::server'
-}
-
-file { '/opt/icebridge-services':
-  ensure => 'directory',
-  owner  => 'vagrant'
 }
