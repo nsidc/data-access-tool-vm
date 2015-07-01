@@ -3,9 +3,9 @@ hiera_include('classes')
 
 if $environment != 'ci' {
 
-############
-#  NGINX
-############
+  ############
+  #  NGINX
+  ############
 
   package { 'nginx':
     ensure => 'present'
@@ -39,9 +39,9 @@ if $environment != 'ci' {
     command => "/bin/rm -f /etc/nginx/conf.d/default.conf || true"
   }
 
-############
-#  NODE
-############
+  ############
+  #  NODE
+  ############
 
   class { 'nodejs':
     version      => 'stable',
@@ -67,9 +67,9 @@ if $environment != 'ci' {
     require => File['/usr/bin/npm']
   }
 
-###########
-#
-###########
+  ###########
+  #
+  ###########
 
   file { '/etc/init/icebridge-services.conf':
     ensure => file,
@@ -86,11 +86,6 @@ if $environment != 'ci' {
     owner  => 'vagrant'
   }
 
-  file { '/opt/icebridge-services':
-    ensure => 'directory',
-    owner  => 'vagrant'
-  }
-
   packagecloud::repo { "rabbitmq/rabbitmq-server":
     type => 'deb'
   }
@@ -100,4 +95,9 @@ if $environment != 'ci' {
   }
 
   include '::mongodb::server'
+}
+
+file { '/opt/icebridge-services':
+  ensure => 'directory',
+  owner  => 'vagrant'
 }
