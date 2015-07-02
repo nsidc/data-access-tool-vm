@@ -7,4 +7,10 @@
   - scm_creds
   - vagrant-nsidc
 
-classes: []
+classes:
+  - nsidc_nfs
+
+nsidc_nfs::sharemounts:
+  /share/apps/icebridge-portal:
+    project: apps
+    share: icebridge-portal
