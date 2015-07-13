@@ -1,14 +1,14 @@
 forge "https://forgeapi.puppetlabs.com"
 
+mod "puppetlabs/apt", "1.8.0"
+
 # Module for creating NSIDC Jenkins servers
 mod "nsidc/nsidc_jenkins",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-jenkins.git",
   :ref => 'latest'
 
-mod "nsidc/nsidc_miniconda",
-  :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",
+mod "nsidc/nsidc_nfs",
+  :git => "git@bitbucket.org:/nsidc/puppet-nsidc-nfs.git",
   :ref => 'latest'
 
-mod 'willdurand/nodejs'
-mod 'computology/packagecloud', '0.2.10'
-mod 'puppetlabs/mongodb', '0.11.0'
+mod "garethr/docker"
