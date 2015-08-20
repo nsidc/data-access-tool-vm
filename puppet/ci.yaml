@@ -48,4 +48,4 @@ nsidc_jenkins::jobs:
     command: |
       vagrant nsidc hijack --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
-      vagrant nsidc ssh --env=$target_environment -c "cd /vagrant/production && SHARE_PATH=/share/apps/icebridge-portal && DEPLOYMENT_ENV=$target_environment && docker-compose up"
+      vagrant nsidc ssh --env=$target_environment -c "cd /vagrant/production && SHARE_PATH=/share/apps/icebridge-portal && DEPLOYMENT_ENV=$target_environment && docker-compose build && docker-compose up -d"
