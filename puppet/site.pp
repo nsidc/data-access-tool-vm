@@ -1,10 +1,18 @@
 # Load modules and classes
 hiera_include('classes')
 
-class { 'docker':
-  version => '1.7.0',
-  docker_users => [ 'vagrant', 'jenkins' ],
-  notify => Service['jenkins']
+if $environment == 'ci' {
+  class { 'docker':
+    version => '1.7.0',
+    docker_users => [ 'vagrant', 'jenkins' ],
+    notify => Service['jenkins']
+  }
+}
+else {
+  class { 'docker':
+    version => '1.7.0',
+    docker_users => [ 'vagrant' ]
+  }
 }
 
 exec { 'docker-compose':
