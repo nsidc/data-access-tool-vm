@@ -4,6 +4,7 @@ hiera_include('classes')
 class { 'docker':
   version => '1.7.0',
   docker_users => [ 'vagrant', 'jenkins' ],
+  notify => Service['jenkins']
 }
 
 exec { 'docker-compose':
