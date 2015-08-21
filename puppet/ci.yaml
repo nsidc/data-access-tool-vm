@@ -49,3 +49,10 @@ nsidc_jenkins::jobs:
       vagrant nsidc hijack --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
       vagrant nsidc ssh --env=$target_environment -c "cd /vagrant/production && SHARE_PATH=/share/apps/icebridge-portal && DEPLOYMENT_ENV=$target_environment && docker-compose build && docker-compose up -d"
+
+  "%{hiera('project')}_Z01_Integration_Refresh_Portal":
+    description: >
+      Pull new images and rebuild and restart portal in integration
+    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
+    command: |
+      vagrant nsidc ssh --env=integration -c "cd /vagrant/production && SHARE_PATH=/share/apps/icebridge-portal && DEPLOYMENT_ENV=integration && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && docker-compose build --no-cache && docker-compose stop && docker-compose up -d"
