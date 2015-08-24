@@ -48,11 +48,17 @@ nsidc_jenkins::jobs:
     command: |
       vagrant nsidc hijack --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
-      vagrant nsidc ssh --env=$target_environment -c "cd /vagrant/production && docker-compose build && DEPLOYMENT_ENV=$target_environment docker-compose up -d"
+
+      $target_dir = "/vagrant/production"
+      if [ $target_environment = "integration" ]; then
+        $target_dir = "/vagrant/development"
+      fi
+
+      vagrant nsidc ssh --env=$target_environment -c "cd $target_dir && docker-compose build && DEPLOYMENT_ENV=$target_environment docker-compose up -d"
 
   "%{hiera('project')}_Z01_Integration_Refresh_Portal":
     description: >
       Pull new images and rebuild and restart portal in integration
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     command: |
-      vagrant nsidc ssh --env=integration -c "cd /vagrant/production && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && docker-compose build --no-cache && docker-compose stop && DEPLOYMENT_ENV=integration docker-compose up -d"
+      vagrant nsidc ssh --env=integration -c "cd /vagrant/development && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && docker-compose build --no-cache && docker-compose stop && DEPLOYMENT_ENV=integration docker-compose up -d"
