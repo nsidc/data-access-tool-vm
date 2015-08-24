@@ -46,15 +46,16 @@ nsidc_jenkins::jobs:
         description: VM environment to build
         default: "integration"
     command: |
+      #!/bin/bash
       vagrant nsidc hijack --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
 
-      $target_dir = "/vagrant/production"
+      TARGET_DIR="/vagrant/production"
       if [ $target_environment = "integration" ]; then
-        $target_dir = "/vagrant/development"
+        TARGET_DIR="/vagrant/development"
       fi
 
-      vagrant nsidc ssh --env=$target_environment -c "cd $target_dir && docker-compose build && DEPLOYMENT_ENV=$target_environment docker-compose up -d"
+      vagrant nsidc ssh --env=$target_environment -c "cd $TARGET_DIR && docker-compose build && DEPLOYMENT_ENV=$target_environment docker-compose up -d"
 
   "%{hiera('project')}_Z01_Integration_Refresh_Portal":
     description: >
