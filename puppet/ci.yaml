@@ -52,7 +52,7 @@ nsidc_jenkins::jobs:
 
       TARGET_DIR="/vagrant/production"
       if [ $target_environment = "integration" ]; then
-        TARGET_DIR="/vagrant/development"
+        TARGET_DIR="/vagrant/integration"
       fi
 
       vagrant nsidc ssh --env=$target_environment -c "cd $TARGET_DIR && docker-compose build && DEPLOYMENT_ENV=$target_environment docker-compose up -d"
