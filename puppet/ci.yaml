@@ -2,6 +2,22 @@
 
 classes:
   - nsidc_jenkins
+  - nsidc_miniconda
+
+nsidc_miniconda::install:
+  /opt/miniconda:
+    version: '3.9.1'
+    owner: jenkins
+    group: jenkins
+    build: true
+    config:
+      location: /var/lib/jenkins
+      channels:
+        anaconda_nsidc_main: true
+        anaconda_nsidc_dev: true
+    packages:
+    - bumpversion==0.5.1
+    - fabric==1.10.1
 
 # Jenkins Plugins
 nsidc_jenkins::plugins:
@@ -63,3 +79,24 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     command: |
       vagrant nsidc ssh --env=integration -c "cd /vagrant/development && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && docker-compose build --no-cache && docker-compose stop && DEPLOYMENT_ENV=integration docker-compose up -d"
+
+  "%{hiera('project')}_Create_Release":
+    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/release
+    git:
+      repo: "%{hiera('gitrepo')}"
+    parameters:
+      - type: string
+        name: ref
+        description: git ref (branch, tag, commit SHA) to checkout
+        default: master
+      - type: choice
+        name: version_part
+        description: The part of the version to increase, according to SemVer.
+        choices:
+          - patch
+          - minor
+          - major
+          - release
+    command: |
+      git checkout $ref
+      fab version.bump:$version_part
