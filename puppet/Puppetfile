@@ -12,3 +12,7 @@ mod "nsidc/nsidc_nfs",
   :ref => 'latest'
 
 mod "garethr/docker"
+
+mod "nsidc/nsidc_miniconda",
+  :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",
+  :ref => "v4.0.1"
