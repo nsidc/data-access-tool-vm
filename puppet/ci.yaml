@@ -96,7 +96,6 @@ nsidc_jenkins::jobs:
           - patch
           - minor
           - major
-          - release
     command: |
       git checkout $ref
       fab version.bump:$version_part
