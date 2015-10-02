@@ -34,6 +34,7 @@ nsidc_jenkins::plugins:
   jabber: {}
   xvnc: {}
   ansicolor: {}
+  parameterized-trigger: {}
 
 # Jenkins Jobs
 nsidc_jenkins::jobs:
@@ -45,6 +46,14 @@ nsidc_jenkins::jobs:
         name: ref
         description: git ref (branch, tag, or SHA) to checkout
         default: master
+      - type: choice
+        name: target_environment
+        description: The VM environment to deploy to
+        choices:
+          - integration
+          - qa
+          - staging
+          - blue
     git:
       repo: "%{hiera('gitrepo')}"
       poll_scm: true
