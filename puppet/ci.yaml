@@ -80,8 +80,6 @@ nsidc_jenkins::jobs:
         TARGET_DIR="/vagrant/integration"
       fi
 
-      vagrant nsidc ssh --env=$target_environment -c "cd $TARGET_DIR && docker-compose build --no-cache && docker-compose stop && DEPLOYMENT_ENV=$target_environment docker-compose up -d"
-
   "%{hiera('project')}_Z01_Integration_Refresh_Portal":
     description: >
       Pull new images and rebuild and restart portal in integration

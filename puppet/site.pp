@@ -26,8 +26,31 @@ file { 'app-share':
   ensure => "directory"
 }
 
+$app_env = $environment ? {
+  /(dev|integration)/ => 'integration',
+  default             => 'production'
+}
+
 file { 'upstart-config':
   ensure => file,
   path   => '/etc/init/icebridge.conf',
   source => '/vagrant/puppet/files/icebridge.conf'
+}
+
+file_line {'set upstart directory':
+  path    => '/etc/init/icebridge.conf',
+  match   => '^chdir /vagrant/.*$',
+  line    => "chdir /vagrant/${app_env}",
+  require => File['upstart-config']
+}
+
+file {'icebridge.sh':
+  ensure => present,
+  path   => '/etc/profile.d/icebridge.sh'
+}
+
+file_line {'set ICEBRIDGE_DOCKER_ENV':
+  path    => '/etc/profile.d/icebridge.sh',
+  line    => "export ICEBRIDGE_DOCKER_ENV=${app_env}",
+  require => File['icebridge.sh']
 }
