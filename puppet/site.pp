@@ -17,10 +17,17 @@ else {
 
 exec { 'docker-compose':
   command => 'curl -L https://github.com/docker/compose/releases/download/1.4.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose',
-  path => ['/bin', '/usr/bin']
+  path => ['/bin', '/usr/bin'],
+  creates => '/usr/local/bin/docker-compose'
 }
 
 file { 'app-share':
   path  => "/share/apps/icebridge-portal/${environment}",
   ensure => "directory"
+}
+
+file { 'upstart-config':
+  ensure => file,
+  path   => '/etc/init/icebridge.conf',
+  source => '/vagrant/puppet/files/icebridge.conf'
 }
