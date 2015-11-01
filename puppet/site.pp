@@ -1,34 +1,57 @@
 # Load modules and classes
 hiera_include('classes')
 
+$icebridge_env = $environment ? {
+  /(dev|integration)/ => 'integration',
+  /qa/                => 'qa',
+  /staging/           => 'staging',
+  /blue/              => 'production',
+  default             => 'integration'
+}
+
+apt::source { 'docker':
+  comment  => 'This is the official Docker repository',
+  location => 'https://apt.dockerproject.org/repo',
+  release  => 'ubuntu-trusty',
+  repos    => 'main',
+  pin      => '500',
+  key      => '58118E89F3A912897C070ADBF76221572C52609D',
+  key_server => 'pgp.mit.edu',
+  include_src => false,
+  include_deb => true
+}
+
 if $environment == 'ci' {
-  class { 'docker':
-    version => '1.7.0',
-    docker_users => [ 'vagrant', 'jenkins' ],
+  package { 'docker-engine':
+    ensure => installed
+  }
+  ->
+  group { 'docker':
+    ensure => present,
+    members => ['vagrant', 'jenkins'],
     notify => Service['jenkins']
   }
 }
 else {
-  class { 'docker':
-    version => '1.7.0',
-    docker_users => [ 'vagrant' ]
+  package { 'docker-engine':
+    ensure => installed
+  }
+  ->
+  group { 'docker':
+    ensure => present,
+    members => ['vagrant']
   }
 }
 
 exec { 'docker-compose':
-  command => 'curl -L https://github.com/docker/compose/releases/download/1.4.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose',
+  command => 'curl -L https://github.com/docker/compose/releases/download/1.5.0rc3/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose',
   path => ['/bin', '/usr/bin'],
   creates => '/usr/local/bin/docker-compose'
 }
 
 file { 'app-share':
-  path  => "/share/apps/icebridge-portal/${environment}",
+  path  => "/share/apps/icebridge-portal/${icebridge_env}",
   ensure => "directory"
-}
-
-$app_env = $environment ? {
-  /(dev|integration)/ => 'integration',
-  default             => 'production'
 }
 
 file { 'upstart-config':
@@ -37,20 +60,23 @@ file { 'upstart-config':
   source => '/vagrant/puppet/files/icebridge.conf'
 }
 
-file_line {'set upstart directory':
-  path    => '/etc/init/icebridge.conf',
-  match   => '^chdir /vagrant/.*$',
-  line    => "chdir /vagrant/${app_env}",
-  require => File['upstart-config']
+if $icebridge_env == 'integration' {
+  file {'icebridge.sh':
+    ensure => present,
+    path   => '/etc/profile.d/icebridge.sh',
+    source => '/vagrant/docker-compose/versions/integration.sh'
+  }
+}
+else {
+  file {'icebridge.sh':
+    ensure => present,
+    path   => '/etc/profile.d/icebridge.sh',
+    source => '/vagrant/docker-compose/versions/release.sh'
+  }
 }
 
-file {'icebridge.sh':
-  ensure => present,
-  path   => '/etc/profile.d/icebridge.sh'
-}
-
-file_line {'set ICEBRIDGE_DOCKER_ENV':
+file_line {'set ICEBRIDGE_ENV':
   path    => '/etc/profile.d/icebridge.sh',
-  line    => "export ICEBRIDGE_DOCKER_ENV=${app_env}",
+  line    => "export ICEBRIDGE_ENV=${icebridge_env}",
   require => File['icebridge.sh']
 }
