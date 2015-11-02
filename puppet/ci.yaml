@@ -74,18 +74,16 @@ nsidc_jenkins::jobs:
       #!/bin/bash
       vagrant nsidc hijack --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
-
-      TARGET_DIR="/vagrant/production"
-      if [ $target_environment = "integration" ]; then
-        TARGET_DIR="/vagrant/integration"
-      fi
+      vagrant nsidc ssh --env=$target_environment -c "sudo service icebridge restart"
 
   "%{hiera('project')}_Z01_Integration_Refresh_Portal":
     description: >
       Pull new images and rebuild and restart portal in integration
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     command: |
-      vagrant nsidc ssh --env=integration -c "cd /vagrant/integration && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && docker-compose build --no-cache && docker-compose stop && DEPLOYMENT_ENV=integration docker-compose up -d"
+      #!/bin/bash
+      vagrant nsidc hijack --env=integration
+      vagrant nsidc ssh --env=integration -c "cd /vagrant/integration && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && sudo service icebridge restart"
 
   "%{hiera('project')}_Create_Release":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/release
