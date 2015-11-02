@@ -9,37 +9,17 @@ $icebridge_env = $environment ? {
   default             => 'integration'
 }
 
-apt::source { 'docker':
-  comment  => 'This is the official Docker repository',
-  location => 'https://apt.dockerproject.org/repo',
-  release  => 'ubuntu-trusty',
-  repos    => 'main',
-  pin      => '500',
-  key      => '58118E89F3A912897C070ADBF76221572C52609D',
-  key_server => 'pgp.mit.edu',
-  include_src => false,
-  include_deb => true
-}
-
 if $environment == 'ci' {
-  package { 'docker-engine':
-    ensure => installed
-  }
-  ->
-  group { 'docker':
-    ensure => present,
-    members => ['vagrant', 'jenkins'],
+  class { 'docker':
+    version => '1.8.3-0~trusty',
+    docker_users => [ 'vagrant', 'jenkins' ],
     notify => Service['jenkins']
   }
 }
 else {
-  package { 'docker-engine':
-    ensure => installed
-  }
-  ->
-  group { 'docker':
-    ensure => present,
-    members => ['vagrant']
+  class { 'docker':
+    version => '1.8.3-0~trusty',
+    docker_users => [ 'vagrant' ]
   }
 }
 
