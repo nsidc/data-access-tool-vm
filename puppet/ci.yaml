@@ -7,17 +7,21 @@ classes:
 nsidc_miniconda::install:
   /opt/miniconda:
     version: '3.9.1'
-    owner: jenkins
-    group: jenkins
+    owner: vagrant
+    group: vagrant
     build: true
     config:
-      location: /var/lib/jenkins
+      location: /home/vagrant
       channels:
         anaconda_nsidc_main: true
         anaconda_nsidc_dev: true
     packages:
     - bumpversion==0.5.1
     - fabric==1.10.1
+
+# Run as vagrant, not jenkins
+# This allows us to get and distribute all credentials
+nsidc_jenkins::use_vagrant: true
 
 # Jenkins Plugins
 nsidc_jenkins::plugins:
