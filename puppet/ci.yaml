@@ -63,7 +63,11 @@ nsidc_jenkins::jobs:
       poll_scm: true
     command: |
       git checkout $ref
-    trigger_job: "%{hiera('project')}_A02_Provision_VM"
+    triggers:
+      - jobs:
+          - "%{hiera('project')}_A02_Provision_VM"
+        parameters:
+          current_build_parameters: true
 
   "%{hiera('project')}_A02_Provision_VM":
     description: >
@@ -87,7 +91,7 @@ nsidc_jenkins::jobs:
     command: |
       #!/bin/bash
       vagrant nsidc hijack --env=integration
-      vagrant nsidc ssh --env=integration -c "cd /vagrant/integration && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && sudo service icebridge restart"
+      vagrant nsidc ssh --env=integration -c "cd /vagrant/docker-compose && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && sudo service icebridge restart"
 
   "%{hiera('project')}_Create_Release":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/release
