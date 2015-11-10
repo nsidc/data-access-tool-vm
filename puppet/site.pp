@@ -6,6 +6,7 @@ $icebridge_env = $environment ? {
   /qa/                => 'qa',
   /staging/           => 'staging',
   /blue/              => 'production',
+  /production/        => 'production',
   default             => 'integration'
 }
 
