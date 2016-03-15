@@ -11,6 +11,10 @@ mod "nsidc/nsidc_nfs",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-nfs.git",
   :ref => 'latest'
 
+mod 'nsidc/nsidc_logrotate',
+  :git => 'git@bitbucket.org:/nsidc/puppet-nsidc-logrotate.git',
+  :ref => 'latest'
+
 mod "garethr/docker",
   :git => "https://github.com/garethr/garethr-docker.git",
   :ref => '2adf7a9571e0a1f19ff4a4146157969cfbe953f6'
