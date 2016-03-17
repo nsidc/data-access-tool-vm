@@ -14,14 +14,3 @@ nsidc_nfs::sharemounts:
   /share/apps/icebridge-portal:
     project: apps
     share: icebridge-portal
-  /share/logs/icebridge-portal:
-    project: logs
-    share: icebridge-portal
-
-nsidc_logrotate::rotate:
-  'icebridge-portal-mongodb':
-    location: /var/log/mongodb/
-    logs:
-      - '*.log'
-    olddir: '/share/logs/icebridge-portal/%{environment}/mongodb'
-    require: 'Nsidc_nfs::Sharemount[/share/apps/icebridge-portal]'
