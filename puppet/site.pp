@@ -61,3 +61,9 @@ file_line {'set ICEBRIDGE_ENV':
   line    => "export ICEBRIDGE_ENV=${icebridge_env}",
   require => File['icebridge.sh']
 }
+
+file {'icebridge-db.sh':
+  ensure => present,
+  path   => '/etc/profile.d/icebridge-db.sh',
+  source => "/vagrant/docker-compose/versions/${icebridge_env}-db.sh"
+}
