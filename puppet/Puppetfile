@@ -13,7 +13,7 @@ mod "nsidc/nsidc_nfs",
 
 mod "garethr/docker",
   :git => "https://github.com/garethr/garethr-docker.git",
-  :ref => '2adf7a9571e0a1f19ff4a4146157969cfbe953f6'
+  :ref => 'v5.1.0'
 
 mod "nsidc/nsidc_miniconda",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",

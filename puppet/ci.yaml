@@ -80,7 +80,7 @@ nsidc_jenkins::jobs:
         default: "integration"
     command: |
       #!/bin/bash
-      vagrant nsidc hijack --env=$target_environment || true
+      vagrant nsidc hijack --force --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
       vagrant nsidc ssh --env=$target_environment -c "sudo service icebridge restart"
 
@@ -90,7 +90,7 @@ nsidc_jenkins::jobs:
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     command: |
       #!/bin/bash
-      vagrant nsidc hijack --env=integration
+      vagrant nsidc hijack --force --env=integration
       vagrant nsidc ssh --env=integration -c "cd /vagrant/docker-compose && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && sudo service icebridge restart"
 
   "%{hiera('project')}_Create_Release":

@@ -12,20 +12,20 @@ $icebridge_env = $environment ? {
 
 if $environment == 'ci' {
   class { 'docker':
-    version => '1.8.3-0~trusty',
+    version => '1.10.3-0~trusty',
     docker_users => [ 'vagrant', 'jenkins' ],
     notify => Service['jenkins']
   }
 }
 else {
   class { 'docker':
-    version => '1.8.3-0~trusty',
+    version => '1.10.3-0~trusty',
     docker_users => [ 'vagrant' ]
   }
 }
 
 exec { 'docker-compose':
-  command => 'curl -L https://github.com/docker/compose/releases/download/1.5.0rc3/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose',
+  command => 'curl -L https://github.com/docker/compose/releases/download/1.6.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose',
   path => ['/bin', '/usr/bin'],
   creates => '/usr/local/bin/docker-compose'
 }
@@ -60,10 +60,4 @@ file_line {'set ICEBRIDGE_ENV':
   path    => '/etc/profile.d/icebridge.sh',
   line    => "export ICEBRIDGE_ENV=${icebridge_env}",
   require => File['icebridge.sh']
-}
-
-file {'icebridge-db.sh':
-  ensure => present,
-  path   => '/etc/profile.d/icebridge-db.sh',
-  source => "/vagrant/docker-compose/files/${icebridge_env}-db.sh"
 }
