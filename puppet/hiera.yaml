@@ -6,7 +6,7 @@
   - puppet/hiera
   - scm_creds
   - vagrant-nsidc
-
+nsidc_jenkins::use_vagrant: true
 classes:
   - nsidc_nfs
 

@@ -19,10 +19,6 @@ nsidc_miniconda::install:
     - bumpversion==0.5.1
     - fabric==1.10.1
 
-# Run as vagrant, not jenkins
-# This allows us to get and distribute all credentials
-nsidc_jenkins::use_vagrant: true
-
 # Jenkins Plugins
 nsidc_jenkins::plugins:
   git: {}
