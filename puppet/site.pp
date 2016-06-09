@@ -61,3 +61,12 @@ file_line {'set ICEBRIDGE_ENV':
   line    => "export ICEBRIDGE_ENV=${icebridge_env}",
   require => File['icebridge.sh']
 }
+
+# Directory to contain order data
+file { '/icebridge':
+  ensure => 'directory'
+}
+->
+file { '/icebridge/orders':
+  ensure => 'directory',
+}
