@@ -14,3 +14,6 @@ nsidc_nfs::sharemounts:
   /share/apps/icebridge-portal:
     project: apps
     share: icebridge-portal
+  /share/apps/icebridge-orders:
+    project: orders
+    share: icebridge-orders

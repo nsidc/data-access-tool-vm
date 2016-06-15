@@ -35,6 +35,11 @@ file { 'app-share':
   ensure => "directory"
 }
 
+file { 'orders-share':
+  path => "/share/apps/icebridge-orders/${icebridge_env}",
+  ensure => "directory"
+}
+
 file { 'upstart-config':
   ensure => file,
   path   => '/etc/init/icebridge.conf',
