@@ -35,6 +35,11 @@ file { 'app-share':
   ensure => "directory"
 }
 
+file { 'data-share':
+  path => "/share/apps/icebridge-data/${icebridge_env}",
+  ensure => "directory"
+}
+
 file { 'upstart-config':
   ensure => file,
   path   => '/etc/init/icebridge.conf',
