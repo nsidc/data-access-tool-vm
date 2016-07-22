@@ -36,7 +36,7 @@ file { 'app-share':
 }
 
 file { 'data-share':
-  path => "/share/apps/icebridge-data/${icebridge_env}",
+  path => "/share/apps/icebridge-order-data/${icebridge_env}",
   ensure => "directory"
 }
 
