@@ -21,16 +21,11 @@ nsidc_miniconda::install:
 
 # Jenkins Plugins
 nsidc_jenkins::plugins:
-  git-client: {}
-  git-parameter: {}
-  scm-api: {}
   greenballs: {}
-  jobConfigHistory: {}
   instant-messaging: {}
   jabber: {}
   xvnc: {}
   ansicolor: {}
-  parameterized-trigger: {}
 
 
 # Jenkins Jobs
@@ -56,11 +51,8 @@ nsidc_jenkins::jobs:
       poll_scm: true
     command: |
       git checkout $ref
-    triggers:
-      - jobs:
-          - "%{hiera('project')}_A02_Provision_VM"
-        parameters:
-          current_build_parameters: true
+    trigger_job: "%{hiera('project')}_A02_Provision_VM"
+
 
   "%{hiera('project')}_A02_Provision_VM":
     description: >
