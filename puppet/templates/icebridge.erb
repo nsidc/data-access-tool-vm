@@ -1,0 +1,2 @@
+export EARTHDATA_USERNAME=<%= vault_get('integration.vault.apps.int.nsidc.org', '/secret/dev/icebridge/earthdata/user', 'username') %>
+export EARTHDATA_PASSWORD=<%= vault_get('integration.vault.apps.int.nsidc.org', '/secret/dev/icebridge/earthdata/user', 'password') %>
