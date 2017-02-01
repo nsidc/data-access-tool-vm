@@ -61,6 +61,12 @@ else {
   }
 }
 
+file { 'envvars':
+  ensure => file,
+  content => vault_template('/vagrant/puppet/templates/icebridge.erb'),
+  path    => '/etc/profile.d/envvars.sh',
+}
+
 file_line {'set ICEBRIDGE_ENV':
   path    => '/etc/profile.d/icebridge.sh',
   line    => "export ICEBRIDGE_ENV=${icebridge_env}",
