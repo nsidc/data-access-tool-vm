@@ -12,14 +12,14 @@ $icebridge_env = $environment ? {
 
 if $environment == 'ci' {
   class { 'docker':
-    version => '1.10.3-0~trusty',
+    version => '1.13.1-0~ubuntu-trusty',
     docker_users => [ 'vagrant', 'jenkins' ],
     notify => Service['jenkins']
   }
 }
 else {
   class { 'docker':
-    version => '1.10.3-0~trusty',
+    version => '1.13.1-0~ubuntu-trusty',
     docker_users => [ 'vagrant' ]
   }
 }
