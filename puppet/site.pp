@@ -61,6 +61,12 @@ else {
   }
 }
 
+file {'docker-cleanup.sh':
+  ensure => present,
+  path   => '/etc/profile.d/docker-cleanup.sh',
+  source => '/vagrant/scripts/docker-cleanup.sh'
+}
+
 file { 'envvars':
   ensure => file,
   content => vault_template('/vagrant/puppet/templates/icebridge.erb'),
