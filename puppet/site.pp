@@ -15,6 +15,11 @@ file { 'app-share':
   ensure => "directory"
 }
 ->
+file { 'rabbitmq-db-dir':
+  path => "/share/apps/icebridge-portal/${icebridge_env}/rabbitmq",
+  ensure => "directory"
+}
+->
 file { 'data-share':
   path   => "/share/apps/icebridge-order-data/${icebridge_env}",
   ensure => "directory"
