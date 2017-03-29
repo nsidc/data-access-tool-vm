@@ -25,17 +25,20 @@ file { 'data-share':
   ensure => "directory"
 }
 ->
-file {'docker-cleanup.sh':
-  ensure => present,
-  path   => '/etc/profile.d/docker-cleanup.sh',
-  source => '/vagrant/scripts/docker-cleanup.sh'
-}
-->
 file { 'envvars':
   ensure  => file,
   content => vault_template('/vagrant/puppet/templates/icebridge.erb'),
-  path    => '/etc/profile.d/envvars.sh',
-  before  => File['upstart-config']
+  path    => '/etc/profile.d/envvars.sh'
+}
+->
+file { 'icebridge.sh':
+  ensure => present,
+  path   => '/etc/profile.d/icebridge.sh'
+}
+->
+file_line {'set ICEBRIDGE_ENV':
+  path    => '/etc/profile.d/icebridge.sh',
+  line    => "export ICEBRIDGE_ENV=${icebridge_env}"
 }
 
 if $environment == 'ci' {
@@ -52,36 +55,3 @@ else {
     docker_users => [ 'vagrant' ]
   }
 }
-
-file { 'upstart-config':
-  ensure => file,
-  path   => '/etc/init/icebridge.conf',
-  source => '/vagrant/puppet/files/icebridge.conf',
-  before => File['icebridge.sh']
-}
-
-if $icebridge_env == 'integration' {
-  file {'icebridge.sh':
-    ensure => present,
-    path   => '/etc/profile.d/icebridge.sh',
-    source => '/vagrant/docker-compose/versions/integration.sh'
-  }
-}
-else {
-  file {'icebridge.sh':
-    ensure => present,
-    path   => '/etc/profile.d/icebridge.sh',
-    source => '/vagrant/docker-compose/versions/release.sh'
-  }
-}
-
-file_line {'set ICEBRIDGE_ENV':
-  path    => '/etc/profile.d/icebridge.sh',
-  line    => "export ICEBRIDGE_ENV=${icebridge_env}",
-  require => File['icebridge.sh']
-  # notify  => Service['icebridge']
-}
-
-# service { 'icebridge':
-#   ensure => 'running'
-# }
