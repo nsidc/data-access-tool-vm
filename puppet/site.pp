@@ -40,7 +40,7 @@ file { 'envvars':
 
 if $environment == 'ci' {
   class { 'docker':
-    version => '1.13.1-0~ubuntu-trusty',
+    version => '17.03.1~ce-0~ubuntu-trusty',
     docker_users => [ 'vagrant', 'jenkins' ],
     notify => Service['jenkins'],
     before => Exec['docker-compose']
@@ -48,17 +48,9 @@ if $environment == 'ci' {
 }
 else {
   class { 'docker':
-    version => '1.13.1-0~ubuntu-trusty',
-    docker_users => [ 'vagrant' ],
-    before => Exec['docker-compose']
+    version => '17.03.1~ce-0~ubuntu-trusty',
+    docker_users => [ 'vagrant' ]
   }
-}
-
-exec { 'docker-compose':
-  command => 'curl -L https://github.com/docker/compose/releases/download/1.11.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose',
-  path => ['/bin', '/usr/bin'],
-  creates => '/usr/local/bin/docker-compose',
-  before => File['upstart-config']
 }
 
 file { 'upstart-config':
@@ -86,10 +78,10 @@ else {
 file_line {'set ICEBRIDGE_ENV':
   path    => '/etc/profile.d/icebridge.sh',
   line    => "export ICEBRIDGE_ENV=${icebridge_env}",
-  require => File['icebridge.sh'],
-  notify  => Service['icebridge']
+  require => File['icebridge.sh']
+  # notify  => Service['icebridge']
 }
 
-service { 'icebridge':
-  ensure => 'running'
-}
+# service { 'icebridge':
+#   ensure => 'running'
+# }
