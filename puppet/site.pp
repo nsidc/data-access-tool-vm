@@ -45,13 +45,31 @@ if $environment == 'ci' {
   class { 'docker':
     version => '17.03.1~ce-0~ubuntu-trusty',
     docker_users => [ 'vagrant', 'jenkins' ],
-    notify => Service['jenkins'],
-    before => Exec['docker-compose']
+    notify => Service['jenkins']
   }
 }
 else {
   class { 'docker':
     version => '17.03.1~ce-0~ubuntu-trusty',
-    docker_users => [ 'vagrant' ]
+    docker_users => [ 'vagrant' ],
+    before => Exec['swarm']
   }
+}
+
+exec { 'swarm':
+  command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377',
+  path => ['/usr/bin', '/usr/sbin',]
+}
+->
+vcsrepo { "/home/vagrant/icebridge-stack":
+  ensure   => present,
+  provider => git,
+  source   => 'git@bitbucket.org:nsidc/icebridge-stack.git',
+  owner    => 'vagrant',
+  group    => 'vagrant'
+}
+->
+exec { 'docker stack deploy --with-registry-auth --compose-file docker-stack.yml icebridge':
+  cwd => '/home/vagrant/icebridge-stack',
+  path => ['/usr/bin', '/usr/sbin',]
 }

@@ -1,6 +1,7 @@
 forge "https://forgeapi.puppetlabs.com"
 
 mod "puppetlabs/apt", "1.8.0"
+mod "puppetlabs/vcsrepo"
 
 # Module for creating NSIDC Jenkins servers
 mod "nsidc/nsidc_jenkins",
