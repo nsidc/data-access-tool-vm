@@ -31,6 +31,12 @@ file { 'envvars':
   path    => '/etc/profile.d/envvars.sh'
 }
 ->
+file { 'upstart-config':
+  ensure => file,
+  path   => '/etc/init/icebridge.conf',
+  source => '/vagrant/puppet/upstart/icebridge.conf'
+}
+->
 file { 'icebridge.sh':
   ensure => present,
   path   => '/etc/profile.d/icebridge.sh'
@@ -38,7 +44,8 @@ file { 'icebridge.sh':
 ->
 file_line {'set ICEBRIDGE_ENV':
   path    => '/etc/profile.d/icebridge.sh',
-  line    => "export ICEBRIDGE_ENV=${icebridge_env}"
+  line    => "export ICEBRIDGE_ENV=${icebridge_env}",
+  before  => Exec['swarm']
 }
 
 if $environment == 'ci' {
@@ -57,7 +64,7 @@ else {
 }
 
 exec { 'swarm':
-  command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377',
+  command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
   path => ['/usr/bin', '/usr/sbin',]
 }
 ->
@@ -69,7 +76,6 @@ vcsrepo { "/home/vagrant/icebridge-stack":
   group    => 'vagrant'
 }
 ->
-exec { 'docker stack deploy --with-registry-auth --compose-file docker-stack.yml icebridge':
-  cwd => '/home/vagrant/icebridge-stack',
-  path => ['/usr/bin', '/usr/sbin',]
+service { 'icebridge':
+  ensure => 'running'
 }
