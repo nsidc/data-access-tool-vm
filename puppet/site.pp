@@ -25,71 +25,57 @@ file { 'data-share':
   ensure => "directory"
 }
 ->
-file {'docker-cleanup.sh':
-  ensure => present,
-  path   => '/etc/profile.d/docker-cleanup.sh',
-  source => '/vagrant/scripts/docker-cleanup.sh'
-}
-->
 file { 'envvars':
   ensure  => file,
   content => vault_template('/vagrant/puppet/templates/icebridge.erb'),
-  path    => '/etc/profile.d/envvars.sh',
-  before  => File['upstart-config']
+  path    => '/etc/profile.d/envvars.sh'
+}
+->
+file { 'upstart-config':
+  ensure => file,
+  path   => '/etc/init/icebridge.conf',
+  source => '/vagrant/puppet/upstart/icebridge.conf'
+}
+->
+file { 'icebridge.sh':
+  ensure => present,
+  path   => '/etc/profile.d/icebridge.sh'
+}
+->
+file_line {'set ICEBRIDGE_ENV':
+  path    => '/etc/profile.d/icebridge.sh',
+  line    => "export ICEBRIDGE_ENV=${icebridge_env}",
+  before  => Exec['swarm']
 }
 
 if $environment == 'ci' {
   class { 'docker':
-    version => '1.13.1-0~ubuntu-trusty',
+    version => '17.03.1~ce-0~ubuntu-trusty',
     docker_users => [ 'vagrant', 'jenkins' ],
-    notify => Service['jenkins'],
-    before => Exec['docker-compose']
+    notify => Service['jenkins']
   }
 }
 else {
   class { 'docker':
-    version => '1.13.1-0~ubuntu-trusty',
+    version => '17.03.1~ce-0~ubuntu-trusty',
     docker_users => [ 'vagrant' ],
-    before => Exec['docker-compose']
+    before => Exec['swarm']
   }
 }
 
-exec { 'docker-compose':
-  command => 'curl -L https://github.com/docker/compose/releases/download/1.11.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose',
-  path => ['/bin', '/usr/bin'],
-  creates => '/usr/local/bin/docker-compose',
-  before => File['upstart-config']
+exec { 'swarm':
+  command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
+  path => ['/usr/bin', '/usr/sbin',]
 }
-
-file { 'upstart-config':
-  ensure => file,
-  path   => '/etc/init/icebridge.conf',
-  source => '/vagrant/puppet/files/icebridge.conf',
-  before => File['icebridge.sh']
+->
+vcsrepo { "/home/vagrant/icebridge-stack":
+  ensure   => present,
+  provider => git,
+  source   => 'git@bitbucket.org:nsidc/icebridge-stack.git',
+  owner    => 'vagrant',
+  group    => 'vagrant'
 }
-
-if $icebridge_env == 'integration' {
-  file {'icebridge.sh':
-    ensure => present,
-    path   => '/etc/profile.d/icebridge.sh',
-    source => '/vagrant/docker-compose/versions/integration.sh'
-  }
-}
-else {
-  file {'icebridge.sh':
-    ensure => present,
-    path   => '/etc/profile.d/icebridge.sh',
-    source => '/vagrant/docker-compose/versions/release.sh'
-  }
-}
-
-file_line {'set ICEBRIDGE_ENV':
-  path    => '/etc/profile.d/icebridge.sh',
-  line    => "export ICEBRIDGE_ENV=${icebridge_env}",
-  require => File['icebridge.sh'],
-  notify  => Service['icebridge']
-}
-
+->
 service { 'icebridge':
   ensure => 'running'
 }
