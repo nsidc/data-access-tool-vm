@@ -31,12 +31,6 @@ file { 'envvars':
   path    => '/etc/profile.d/envvars.sh'
 }
 ->
-file { 'upstart-config':
-  ensure => file,
-  path   => '/etc/init/icebridge.conf',
-  source => '/vagrant/puppet/upstart/icebridge.conf'
-}
-->
 file { 'icebridge.sh':
   ensure => present,
   path   => '/etc/profile.d/icebridge.sh'
