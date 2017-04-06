@@ -69,7 +69,3 @@ vcsrepo { "/home/vagrant/icebridge-stack":
   owner    => 'vagrant',
   group    => 'vagrant'
 }
-->
-service { 'icebridge':
-  ensure => 'running'
-}
