@@ -42,6 +42,17 @@ file_line {'set ICEBRIDGE_ENV':
   before  => Exec['swarm']
 }
 
+file { '/home/vagrant/icebridge-stack/scripts/docker-cleanup.sh':
+  ensure => present,
+  mode => 'u+x'
+}
+->
+cron { 'docker-cleanup':
+  command => '/home/vagrant/icebridge-stack/scripts/docker-cleanup.sh',
+  user    => 'vagrant',
+  hour    => '*'
+}
+
 if $environment == 'ci' {
   class { 'docker':
     version => '17.03.1~ce-0~ubuntu-trusty',
