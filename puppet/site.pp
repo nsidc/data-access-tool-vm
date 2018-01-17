@@ -60,36 +60,44 @@ else {
 if $environment == 'dev' {
 
   exec { 'install docker-compose':
-    command => 'curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose',
-    creates => '/usr/local/bin/docker-compose',
+    command => 'sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose',
     path => '/usr/bin'
-  } ->
+  }
 
   exec { 'setup node':
-    command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -',
+    command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get install -y nodejs',
     path => '/usr/bin'
-  } ->
-  package { 'nodejs': } ->
-  package { 'npm': } ->
+  }
 
-  package { 'jq': } ->
+  package { 'jq': }
 
-  exec { 'clone icebridge-stack'
+  exec { 'clone icebridge-stack':
     command => 'mkdir -p /home/vagrant/icebridge && git clone git@bitbucket.org:nsidc/icebridge-stack.git /home/vagrant/icebridge/icebridge-stack',
     creates => '/home/vagrant/icebridge/icebridge-stack',
     path => '/usr/bin:/bin'
-  } ->
+  }
 
-  exec { 'setup all the icebridge repos':
-    command => './scripts/clone-dev.sh && ./scripts/init-dev.sh && ./scripts/build-dev.sh',
+
+
+  # don't check this in
+  exec { 'dev branch':
+    command => 'git checkout changes',
     cwd => '/home/vagrant/icebridge/icebridge-stack',
-    path => '/bin:/usr/bin:/usr/local/bin'
+    path => '/usr/bin',
+    require => [Exec['clone icebridge-stack'], Exec['install docker-compose'], Package['jq']]
   } ->
 
-  exec { 'deps for icebridge-interface':
-    command => 'npm install',
-    cwd => '/home/vagrant/icebridge/icebridge-interface',
-    path => '/usr/bin'
+  exec { 'clone all the icebridge repos':
+    command => 'bash ./scripts/clone-dev.sh',
+    cwd => '/home/vagrant/icebridge/icebridge-stack',
+    path => '/bin:/usr/bin:/usr/local/bin',
+    require => [Exec['clone icebridge-stack'], Exec['install docker-compose'], Package['jq']]
+  }
+
+  exec { 'vagrant permissions':
+    command => 'chown -R vagrant:vagrant /home/vagrant/icebridge',
+    path => '/bin',
+    require => [Exec['clone all the icebridge repos']]
   }
 }
 
