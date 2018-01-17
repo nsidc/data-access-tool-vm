@@ -1,0 +1,17 @@
+classes:
+  - nsidc_miniconda
+
+nsidc_miniconda::install:
+  /opt/miniconda:
+    version: '3.9.1'
+    owner: vagrant
+    group: vagrant
+    build: true
+    config:
+      location: /home/vagrant
+      channels:
+        anaconda_nsidc_main: true
+        anaconda_nsidc_dev: true
+    packages:
+    - bumpversion==0.5.1
+    - fabric==1.10.1
