@@ -57,7 +57,7 @@ nsidc_jenkins::jobs:
 
   "%{hiera('project')}_A02_Provision_VM":
     description: >
-      Provision an integration, QA, staging, or production VM for IceBridge
+      Provision an integration, QA, staging, or production VM for DatasetOrders
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     parameters:
       - type: string
@@ -68,7 +68,7 @@ nsidc_jenkins::jobs:
       #!/bin/bash
       vagrant nsidc hijack --force --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
-      vagrant nsidc ssh --env=$target_environment -c "sudo service icebridge restart"
+      vagrant nsidc ssh --env=$target_environment -c "sudo service dataset-orders restart"
 
   "%{hiera('project')}_Z01_Integration_Refresh_Portal":
     description: >
@@ -77,7 +77,7 @@ nsidc_jenkins::jobs:
     command: |
       #!/bin/bash
       vagrant nsidc hijack --force --env=integration
-      vagrant nsidc ssh --env=integration -c "cd /vagrant/docker-compose && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && sudo service icebridge restart"
+      vagrant nsidc ssh --env=integration -c "cd /vagrant/docker-compose && docker pull nsidc/dataset-orders-interface && docker pull nsidc/dataset-orders-services && docker pull nsidc/dataset-orders-workers && sudo service dataset-orders restart"
 
   "%{hiera('project')}_Create_Release":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/release

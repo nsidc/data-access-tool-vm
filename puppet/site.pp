@@ -1,7 +1,7 @@
 # Load modules and classes
 hiera_include('classes')
 
-$icebridge_env = $environment ? {
+$dataset_orders_env = $environment ? {
   /(dev|integration)/ => 'integration',
   /qa/                => 'qa',
   /staging/           => 'staging',
@@ -11,34 +11,34 @@ $icebridge_env = $environment ? {
 }
 
 file { 'app-share':
-  path   => "/share/apps/icebridge-portal/${icebridge_env}",
+  path   => "/share/apps/dataset-orders-portal/${dataset_orders_env}",
   ensure => "directory"
 }
 ->
 file { 'rabbitmq-db-dir':
-  path => "/share/apps/icebridge-portal/${icebridge_env}/rabbitmq",
+  path => "/share/apps/dataset-orders-portal/${dataset_orders_env}/rabbitmq",
   ensure => "directory"
 }
 ->
 file { 'data-share':
-  path   => "/share/apps/icebridge-order-data/${icebridge_env}",
+  path   => "/share/apps/dataset-orders-order-data/${dataset_orders_env}",
   ensure => "directory"
 }
 ->
 file { 'envvars':
   ensure  => file,
-  content => vault_template('/vagrant/puppet/templates/icebridge.erb'),
+  content => vault_template('/vagrant/puppet/templates/dataset-orders.erb'),
   path    => '/etc/profile.d/envvars.sh'
 }
 ->
-file { 'icebridge.sh':
+file { 'dataset-orders.sh':
   ensure => present,
-  path   => '/etc/profile.d/icebridge.sh'
+  path   => '/etc/profile.d/dataset-orders.sh'
 }
 ->
-file_line {'set ICEBRIDGE_ENV':
-  path    => '/etc/profile.d/icebridge.sh',
-  line    => "export ICEBRIDGE_ENV=${icebridge_env}",
+file_line {'set DATASET_ORDERS_ENV':
+  path    => '/etc/profile.d/dataset-orders.sh',
+  line    => "export DATASET_ORDERS_ENV=${dataset_orders_env}",
   before  => Exec['swarm']
 }
 
@@ -71,9 +71,9 @@ if $environment == 'dev' {
 
   package { 'jq': }
 
-  exec { 'clone icebridge-stack':
-    command => 'mkdir -p /home/vagrant/icebridge && git clone git@bitbucket.org:nsidc/icebridge-stack.git /home/vagrant/icebridge/icebridge-stack',
-    creates => '/home/vagrant/icebridge/icebridge-stack',
+  exec { 'clone dataset-orders-stack':
+    command => 'mkdir -p /home/vagrant/dataset-orders && git clone git@bitbucket.org:nsidc/dataset-orders-stack.git /home/vagrant/dataset-orders/dataset-orders-stack',
+    creates => '/home/vagrant/dataset-orders/dataset-orders-stack',
     path => '/usr/bin:/bin'
   }
 
@@ -82,22 +82,22 @@ if $environment == 'dev' {
   # don't check this in
   exec { 'dev branch':
     command => 'git checkout changes',
-    cwd => '/home/vagrant/icebridge/icebridge-stack',
+    cwd => '/home/vagrant/dataset-orders/dataset-orders-stack',
     path => '/usr/bin',
-    require => [Exec['clone icebridge-stack'], Exec['install docker-compose'], Package['jq']]
+    require => [Exec['clone dataset-orders-stack'], Exec['install docker-compose'], Package['jq']]
   } ->
 
-  exec { 'clone all the icebridge repos':
+  exec { 'clone all the dataset-orders repos':
     command => 'bash ./scripts/clone-dev.sh',
-    cwd => '/home/vagrant/icebridge/icebridge-stack',
+    cwd => '/home/vagrant/dataset-orders/dataset-orders-stack',
     path => '/bin:/usr/bin:/usr/local/bin',
-    require => [Exec['clone icebridge-stack'], Exec['install docker-compose'], Package['jq']]
+    require => [Exec['clone dataset-orders-stack'], Exec['install docker-compose'], Package['jq']]
   }
 
   exec { 'vagrant permissions':
-    command => 'chown -R vagrant:vagrant /home/vagrant/icebridge',
+    command => 'chown -R vagrant:vagrant /home/vagrant/dataset-orders',
     path => '/bin',
-    require => [Exec['clone all the icebridge repos']]
+    require => [Exec['clone all the dataset-orders repos']]
   }
 }
 
@@ -106,21 +106,21 @@ exec { 'swarm':
   path => ['/usr/bin', '/usr/sbin',]
 }
 ->
-vcsrepo { "/home/vagrant/icebridge-stack":
+vcsrepo { "/home/vagrant/dataset-orders-stack":
   ensure   => present,
   provider => git,
-  source   => 'git@bitbucket.org:nsidc/icebridge-stack.git',
+  source   => 'git@bitbucket.org:nsidc/dataset-orders-stack.git',
   owner    => 'vagrant',
   group    => 'vagrant'
 }
 ->
-file { '/home/vagrant/icebridge-stack/scripts/docker-cleanup.sh':
+file { '/home/vagrant/dataset-orders-stack/scripts/docker-cleanup.sh':
   ensure => present,
   mode => 'u+x'
 }
 ->
 cron { 'docker-cleanup':
-  command => '/home/vagrant/icebridge-stack/scripts/docker-cleanup.sh',
+  command => '/home/vagrant/dataset-orders-stack/scripts/docker-cleanup.sh',
   user    => 'vagrant',
   hour    => '*'
 }

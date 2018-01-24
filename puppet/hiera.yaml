@@ -11,9 +11,9 @@ classes:
   - nsidc_nfs
 
 nsidc_nfs::sharemounts:
-  /share/apps/icebridge-portal:
+  /share/apps/dataset-orders-portal:
     project: apps
-    share: icebridge-portal
-  /share/apps/icebridge-order-data:
+    share: dataset-orders-portal
+  /share/apps/dataset-orders-order-data:
     project: appdata
-    share: icebridge-order-data
+    share: dataset-orders-order-data
