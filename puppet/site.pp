@@ -11,17 +11,17 @@ $dataset_orders_env = $environment ? {
 }
 
 file { 'app-share':
-  path   => "/share/apps/icebridge/${dataset_orders_env}",
+  path   => "/share/apps/icebridge-portal/${dataset_orders_env}",
   ensure => "directory"
 }
 ->
 file { 'rabbitmq-db-dir':
-  path => "/share/apps/icebridge/${dataset_orders_env}/rabbitmq",
+  path => "/share/apps/icebridge-portal/${dataset_orders_env}/rabbitmq",
   ensure => "directory"
 }
 ->
 file { 'data-share':
-  path   => "/share/apps/icebridge/${dataset_orders_env}",
+  path   => "/share/apps/icebridge-order-data/${dataset_orders_env}",
   ensure => "directory"
 }
 ->
