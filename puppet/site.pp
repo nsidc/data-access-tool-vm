@@ -1,7 +1,7 @@
 # Load modules and classes
 hiera_include('classes')
 
-$dataset_orders_env = $environment ? {
+$datasetorders_env = $environment ? {
   /(dev|integration)/ => 'integration',
   /qa/                => 'qa',
   /staging/           => 'staging',
@@ -11,34 +11,34 @@ $dataset_orders_env = $environment ? {
 }
 
 file { 'app-share':
-  path   => "/share/apps/icebridge-portal/${dataset_orders_env}",
+  path   => "/share/apps/icebridge-portal/${datasetorders_env}",
   ensure => "directory"
 }
 ->
 file { 'rabbitmq-db-dir':
-  path => "/share/apps/icebridge-portal/${dataset_orders_env}/rabbitmq",
+  path => "/share/apps/icebridge-portal/${datasetorders_env}/rabbitmq",
   ensure => "directory"
 }
 ->
 file { 'data-share':
-  path   => "/share/apps/icebridge-order-data/${dataset_orders_env}",
+  path   => "/share/apps/icebridge-order-data/${datasetorders_env}",
   ensure => "directory"
 }
 ->
 file { 'envvars':
   ensure  => file,
-  content => vault_template('/vagrant/puppet/templates/dataset-orders.erb'),
+  content => vault_template('/vagrant/puppet/templates/datasetorders.erb'),
   path    => '/etc/profile.d/envvars.sh'
 }
 ->
-file { 'dataset-orders.sh':
+file { 'datasetorders.sh':
   ensure => present,
-  path   => '/etc/profile.d/dataset-orders.sh'
+  path   => '/etc/profile.d/datasetorders.sh'
 }
 ->
-file_line {'set DATASET_ORDERS_ENV':
-  path    => '/etc/profile.d/dataset-orders.sh',
-  line    => "export DATASET_ORDERS_ENV=${dataset_orders_env}",
+file_line {'set DATASETORDERS_ENV':
+  path    => '/etc/profile.d/datasetorders.sh',
+  line    => "export DATASETORDERS_ENV=${datasetorders_env}",
   before  => Exec['swarm']
 }
 
@@ -71,9 +71,9 @@ if $environment == 'dev' {
 
   package { 'jq': }
 
-  exec { 'clone dataset-orders-stack':
-    command => 'mkdir -p /home/vagrant/dataset-orders && git clone git@bitbucket.org:nsidc/dataset-orders-stack.git /home/vagrant/dataset-orders/dataset-orders-stack',
-    creates => '/home/vagrant/dataset-orders/dataset-orders-stack',
+  exec { 'clone datasetorders-stack':
+    command => 'mkdir -p /home/vagrant/datasetorders && git clone git@bitbucket.org:nsidc/datasetorders-stack.git /home/vagrant/datasetorders/datasetorders-stack',
+    creates => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin:/bin'
   }
 
@@ -81,23 +81,23 @@ if $environment == 'dev' {
 
   # don't check this in
   exec { 'dev branch':
-    command => 'git checkout dataset-orders',
-    cwd => '/home/vagrant/dataset-orders/dataset-orders-stack',
+    command => 'git checkout datasetorders',
+    cwd => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin',
-    require => [Exec['clone dataset-orders-stack'], Exec['install docker-compose'], Package['jq']]
+    require => [Exec['clone datasetorders-stack'], Exec['install docker-compose'], Package['jq']]
   } ->
 
-  exec { 'clone all the dataset-orders repos':
+  exec { 'clone all the datasetorders repos':
     command => 'bash ./scripts/clone-dev.sh',
-    cwd => '/home/vagrant/dataset-orders/dataset-orders-stack',
+    cwd => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/bin:/usr/bin:/usr/local/bin',
-    require => [Exec['clone dataset-orders-stack'], Exec['install docker-compose'], Package['jq']]
+    require => [Exec['clone datasetorders-stack'], Exec['install docker-compose'], Package['jq']]
   }
 
   exec { 'vagrant permissions':
-    command => 'chown -R vagrant:vagrant /home/vagrant/dataset-orders',
+    command => 'chown -R vagrant:vagrant /home/vagrant/datasetorders',
     path => '/bin',
-    require => [Exec['clone all the dataset-orders repos']]
+    require => [Exec['clone all the datasetorders repos']]
   }
 }
 
@@ -106,21 +106,21 @@ exec { 'swarm':
   path => ['/usr/bin', '/usr/sbin',]
 }
 ->
-vcsrepo { "/home/vagrant/dataset-orders-stack":
+vcsrepo { "/home/vagrant/datasetorders-stack":
   ensure   => present,
   provider => git,
-  source   => 'git@bitbucket.org:nsidc/dataset-orders-stack.git',
+  source   => 'git@bitbucket.org:nsidc/datasetorders-stack.git',
   owner    => 'vagrant',
   group    => 'vagrant'
 }
 ->
-file { '/home/vagrant/dataset-orders-stack/scripts/docker-cleanup.sh':
+file { '/home/vagrant/datasetorders-stack/scripts/docker-cleanup.sh':
   ensure => present,
   mode => 'u+x'
 }
 ->
 cron { 'docker-cleanup':
-  command => '/home/vagrant/dataset-orders-stack/scripts/docker-cleanup.sh',
+  command => '/home/vagrant/datasetorders-stack/scripts/docker-cleanup.sh',
   user    => 'vagrant',
   hour    => '*'
 }
