@@ -81,7 +81,7 @@ if $environment == 'dev' {
 
   # don't check this in
   exec { 'dev branch':
-    command => 'git checkout datasetorders',
+    command => 'git checkout dataset-orders',
     cwd => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin',
     require => [Exec['clone datasetorders-stack'], Exec['install docker-compose'], Package['jq']]
