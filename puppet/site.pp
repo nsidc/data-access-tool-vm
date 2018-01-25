@@ -114,13 +114,13 @@ vcsrepo { "/home/vagrant/datasetorders/datasetorders-stack":
   group    => 'vagrant'
 }
 ->
-file { '/home/vagrant/datasetorders-stack/scripts/docker-cleanup.sh':
+file { '/home/vagrant/datasetorders/datasetorders-stack/scripts/docker-cleanup.sh':
   ensure => present,
   mode => 'u+x'
 }
 ->
 cron { 'docker-cleanup':
-  command => '/home/vagrant/datasetorders-stack/scripts/docker-cleanup.sh',
+  command => '/home/vagrant/datasetorders/datasetorders-stack/scripts/docker-cleanup.sh',
   user    => 'vagrant',
   hour    => '*'
 }
