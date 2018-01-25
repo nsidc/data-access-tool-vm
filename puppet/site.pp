@@ -106,10 +106,10 @@ exec { 'swarm':
   path => ['/usr/bin', '/usr/sbin',]
 }
 ->
-vcsrepo { "/home/vagrant/datasetorders-stack":
+vcsrepo { "/home/vagrant/datasetorders/datasetorders-stack":
   ensure   => present,
   provider => git,
-  source   => 'git@bitbucket.org:nsidc/datasetorders-stack.git',
+  source   => 'git@bitbucket.org:nsidc/dataset-orders-stack.git',
   owner    => 'vagrant',
   group    => 'vagrant'
 }
