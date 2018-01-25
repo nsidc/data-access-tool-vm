@@ -72,7 +72,7 @@ if $environment == 'dev' {
   package { 'jq': }
 
   exec { 'clone datasetorders-stack':
-    command => 'mkdir -p /home/vagrant/datasetorders && git clone git@bitbucket.org:nsidc/dataset-orders-stack.git /home/vagrant/datasetorders/datasetorders-stack',
+    command => 'mkdir -p /home/vagrant/datasetorders && git clone git@bitbucket.org:nsidc/datasetorders-stack.git /home/vagrant/datasetorders/datasetorders-stack',
     creates => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin:/bin'
   }
@@ -81,7 +81,7 @@ if $environment == 'dev' {
 
   # don't check this in
   exec { 'dev branch':
-    command => 'git checkout dataset-orders',
+    command => 'git checkout datasetorders',
     cwd => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin',
     require => [Exec['clone datasetorders-stack'], Exec['install docker-compose'], Package['jq']]
@@ -109,7 +109,7 @@ exec { 'swarm':
 vcsrepo { "/home/vagrant/datasetorders/datasetorders-stack":
   ensure   => present,
   provider => git,
-  source   => 'git@bitbucket.org:nsidc/dataset-orders-stack.git',
+  source   => 'git@bitbucket.org:nsidc/datasetorders-stack.git',
   owner    => 'vagrant',
   group    => 'vagrant'
 }
