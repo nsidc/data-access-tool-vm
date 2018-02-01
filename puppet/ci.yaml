@@ -15,6 +15,7 @@ nsidc_miniconda::install:
       channels:
         anaconda_nsidc_main: true
         anaconda_nsidc_dev: true
+        conda_forge: true
     packages:
     - bumpversion==0.5.3
     - fabric==1.10.1
