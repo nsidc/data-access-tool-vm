@@ -3,7 +3,7 @@ classes:
 
 nsidc_miniconda::install:
   /opt/miniconda:
-    version: '3.9.1'
+    version: '4.3.27'
     owner: vagrant
     group: vagrant
     build: true

@@ -1,0 +1,10 @@
+classes:
+  - nsidc_nfs
+
+nsidc_nfs::sharemounts:
+  /share/apps/icebridge-portal:
+    project: apps
+    share: icebridge-portal
+  /share/apps/icebridge-order-data:
+    project: appdata
+    share: icebridge-order-data

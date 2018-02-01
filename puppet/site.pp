@@ -1,5 +1,5 @@
 # Load modules and classes
-hiera_include('classes')
+lookup('classes', {merge => unique}).include
 
 $datasetorders_env = $environment ? {
   /(dev|integration)/ => 'integration',
@@ -42,27 +42,7 @@ file_line {'set DATASETORDERS_ENV':
   before  => Exec['swarm']
 }
 
-if $environment == 'ci' {
-  class { 'docker':
-    version => '17.03.1~ce-0~ubuntu-trusty',
-    docker_users => [ 'vagrant', 'jenkins' ],
-    notify => Service['jenkins']
-  }
-}
-else {
-  class { 'docker':
-    version => '17.03.1~ce-0~ubuntu-trusty',
-    docker_users => [ 'vagrant' ],
-    before => Exec['swarm']
-  }
-}
-
 if $environment == 'dev' {
-
-  exec { 'install docker-compose':
-    command => 'sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose',
-    path => '/usr/bin'
-  }
 
   exec { 'setup node':
     command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get install -y nodejs',
@@ -72,26 +52,24 @@ if $environment == 'dev' {
   package { 'jq': }
 
   exec { 'clone datasetorders-stack':
-    command => 'mkdir -p /home/vagrant/datasetorders && git clone git@bitbucket.org:nsidc/datasetorders-stack.git /home/vagrant/datasetorders/datasetorders-stack',
+    command => 'mkdir -p /home/vagrant/datasetorders && git clone git@bitbucket.org:nsidc/dataset-orders-stack.git /home/vagrant/datasetorders/datasetorders-stack',
     creates => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin:/bin'
   }
 
-
-
   # don't check this in
   exec { 'dev branch':
-    command => 'git checkout datasetorders',
+    command => 'git checkout dataset-orders',
     cwd => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin',
-    require => [Exec['clone datasetorders-stack'], Exec['install docker-compose'], Package['jq']]
+    require => [Exec['clone datasetorders-stack'], Package['jq']]
   } ->
 
   exec { 'clone all the datasetorders repos':
     command => 'bash ./scripts/clone-dev.sh',
     cwd => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/bin:/usr/bin:/usr/local/bin',
-    require => [Exec['clone datasetorders-stack'], Exec['install docker-compose'], Package['jq']]
+    require => [Exec['clone datasetorders-stack'], Package['jq']]
   }
 
   exec { 'vagrant permissions':
@@ -109,7 +87,7 @@ exec { 'swarm':
 vcsrepo { "/home/vagrant/datasetorders/datasetorders-stack":
   ensure   => present,
   provider => git,
-  source   => 'git@bitbucket.org:nsidc/datasetorders-stack.git',
+  source   => 'git@bitbucket.org:nsidc/dataset-orders-stack.git',
   owner    => 'vagrant',
   group    => 'vagrant'
 }

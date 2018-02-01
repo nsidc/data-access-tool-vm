@@ -1,19 +1,12 @@
-# Puppet Hiera Data
-:yaml:
-  :datadir: .
-:hierarchy:
-  - "puppet/%{environment}"
-  - puppet/hiera
-  - scm_creds
-  - vagrant-nsidc
-nsidc_jenkins::use_vagrant: true
-classes:
-  - nsidc_nfs
+version: 5
 
-nsidc_nfs::sharemounts:
-  /share/apps/icebridge-portal:
-    project: apps
-    share: icebridge-portal
-  /share/apps/icebridge-order-data:
-    project: appdata
-    share: icebridge-order-data
+defaults:
+  datadir: .
+  data_hash: yaml_data
+
+hierarchy:
+  - name: hierarchy
+    paths:
+      - "/vagrant/puppet/%{environment}.yaml"
+      - /vagrant/puppet/common.yaml
+      - /vagrant/vagrant-nsidc.yaml
