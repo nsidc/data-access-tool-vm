@@ -1,5 +1,5 @@
 ---
-project: icebridge-portal
+project: datasetorders
 gitrepo: git@bitbucket.org:nsidc/datasetorders-portal.git
 vsphere:
   template: trusty64-nsidc
