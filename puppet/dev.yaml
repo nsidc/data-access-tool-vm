@@ -15,4 +15,3 @@ nsidc_miniconda::install:
         conda_forge: true
     packages:
     - bumpversion==0.5.3
-    - fabric==1.10.1
