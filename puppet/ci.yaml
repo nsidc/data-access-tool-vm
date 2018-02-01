@@ -16,7 +16,7 @@ nsidc_miniconda::install:
         anaconda_nsidc_main: true
         anaconda_nsidc_dev: true
     packages:
-    - bumpversion==0.5.1
+    - bumpversion==0.5.3
     - fabric==1.10.1
 
 # Jenkins Plugins
