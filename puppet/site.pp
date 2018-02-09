@@ -57,6 +57,14 @@ if $environment == 'dev' {
     path => '/usr/bin:/bin'
   }
 
+  # don't check this in
+  exec { 'dev branch':
+    command => 'git checkout more-changes',
+    cwd => '/home/vagrant/datasetorders/datasetorders-stack',
+    path => '/usr/bin',
+    require => [Exec['clone datasetorders-stack'], Package['jq']]
+  } ->
+
   exec { 'clone all the datasetorders repos':
     command => 'bash ./scripts/clone-dev.sh',
     cwd => '/home/vagrant/datasetorders/datasetorders-stack',
