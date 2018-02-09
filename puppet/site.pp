@@ -59,7 +59,7 @@ if $environment == 'dev' {
 
   # don't check this in
   exec { 'dev branch':
-    command => 'git checkout more-changes',
+    command => 'git checkout datasetorders-more-changes',
     cwd => '/home/vagrant/datasetorders/datasetorders-stack',
     path => '/usr/bin',
     require => [Exec['clone datasetorders-stack'], Package['jq']]
