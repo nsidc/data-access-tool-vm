@@ -1,7 +1,7 @@
 # Load modules and classes
 lookup('classes', {merge => unique}).include
 
-$datasetorders_env = $environment ? {
+$hermes_env = $environment ? {
   /(dev|integration)/ => 'integration',
   /qa/                => 'qa',
   /staging/           => 'staging',
@@ -11,34 +11,34 @@ $datasetorders_env = $environment ? {
 }
 
 file { 'app-share':
-  path   => "/share/apps/icebridge-portal/${datasetorders_env}",
+  path   => "/share/apps/icebridge-portal/${hermes_env}",
   ensure => "directory"
 }
 ->
 file { 'rabbitmq-db-dir':
-  path => "/share/apps/icebridge-portal/${datasetorders_env}/rabbitmq",
+  path => "/share/apps/icebridge-portal/${hermes_env}/rabbitmq",
   ensure => "directory"
 }
 ->
 file { 'data-share':
-  path   => "/share/apps/icebridge-order-data/${datasetorders_env}",
+  path   => "/share/apps/icebridge-order-data/${hermes_env}",
   ensure => "directory"
 }
 ->
 file { 'envvars':
   ensure  => file,
-  content => vault_template('/vagrant/puppet/templates/datasetorders.erb'),
+  content => vault_template('/vagrant/puppet/templates/hermes.erb'),
   path    => '/etc/profile.d/envvars.sh'
 }
 ->
-file { 'datasetorders.sh':
+file { 'hermes.sh':
   ensure => present,
-  path   => '/etc/profile.d/datasetorders.sh'
+  path   => '/etc/profile.d/hermes.sh'
 }
 ->
-file_line {'set DATASETORDERS_ENV':
-  path    => '/etc/profile.d/datasetorders.sh',
-  line    => "export DATASETORDERS_ENV=${datasetorders_env}",
+file_line {'set HERMES_ENV':
+  path    => '/etc/profile.d/hermes.sh',
+  line    => "export HERMES_ENV=${hermes_env}",
   before  => Exec['swarm']
 }
 
@@ -51,31 +51,31 @@ if $environment == 'dev' {
 
   package { 'jq': }
 
-  exec { 'clone datasetorders-stack':
-    command => 'mkdir -p /home/vagrant/datasetorders && git clone git@bitbucket.org:nsidc/datasetorders-stack.git /home/vagrant/datasetorders/datasetorders-stack',
-    creates => '/home/vagrant/datasetorders/datasetorders-stack',
+  exec { 'clone hermes-stack':
+    command => 'mkdir -p /home/vagrant/hermes && git clone git@bitbucket.org:nsidc/hermes-stack.git /home/vagrant/hermes/hermes-stack',
+    creates => '/home/vagrant/hermes/hermes-stack',
     path => '/usr/bin:/bin'
   }
 
   # don't check this in
   exec { 'dev branch':
-    command => 'git checkout datasetorders-more-changes',
-    cwd => '/home/vagrant/datasetorders/datasetorders-stack',
+    command => 'git checkout hermes-more-changes',
+    cwd => '/home/vagrant/hermes/hermes-stack',
     path => '/usr/bin',
-    require => [Exec['clone datasetorders-stack'], Package['jq']]
+    require => [Exec['clone hermes-stack'], Package['jq']]
   } ->
 
-  exec { 'clone all the datasetorders repos':
+  exec { 'clone all the hermes repos':
     command => 'bash ./scripts/clone-dev.sh',
-    cwd => '/home/vagrant/datasetorders/datasetorders-stack',
+    cwd => '/home/vagrant/hermes/hermes-stack',
     path => '/bin:/usr/bin:/usr/local/bin',
-    require => [Exec['clone datasetorders-stack'], Package['jq']]
+    require => [Exec['clone hermes-stack'], Package['jq']]
   }
 
   exec { 'vagrant permissions':
-    command => 'chown -R vagrant:vagrant /home/vagrant/datasetorders',
+    command => 'chown -R vagrant:vagrant /home/vagrant/hermes',
     path => '/bin',
-    require => [Exec['clone all the datasetorders repos']]
+    require => [Exec['clone all the hermes repos']]
   }
 }
 
@@ -84,21 +84,21 @@ exec { 'swarm':
   path => ['/usr/bin', '/usr/sbin',]
 }
 ->
-vcsrepo { "/home/vagrant/datasetorders/datasetorders-stack":
+vcsrepo { "/home/vagrant/hermes/hermes-stack":
   ensure   => present,
   provider => git,
-  source   => 'git@bitbucket.org:nsidc/datasetorders-stack.git',
+  source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
   owner    => 'vagrant',
   group    => 'vagrant'
 }
 ->
-file { '/home/vagrant/datasetorders/datasetorders-stack/scripts/docker-cleanup.sh':
+file { '/home/vagrant/hermes/hermes-stack/scripts/docker-cleanup.sh':
   ensure => present,
   mode => 'u+x'
 }
 ->
 cron { 'docker-cleanup':
-  command => '/home/vagrant/datasetorders/datasetorders-stack/scripts/docker-cleanup.sh',
+  command => '/home/vagrant/hermes/hermes-stack/scripts/docker-cleanup.sh',
   user    => 'vagrant',
   hour    => '*'
 }

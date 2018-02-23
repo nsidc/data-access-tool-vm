@@ -1,5 +1,5 @@
-project: datasetorders
-gitrepo: git@bitbucket.org:nsidc/datasetorders-portal.git
+project: hermes
+gitrepo: git@bitbucket.org:nsidc/hermes-vm.git
 vsphere:
   template:
     default: xenial64-docker-puppet4
