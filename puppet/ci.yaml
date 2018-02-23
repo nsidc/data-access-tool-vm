@@ -100,4 +100,3 @@ nsidc_jenkins::jobs:
       bumpversion $version_part
       git push
       git push --tags
-      fab version.bump:$version_part
