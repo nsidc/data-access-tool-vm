@@ -8,6 +8,11 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provision :shell do |s|
+    s.name = 'apt-get update'
+    s.inline = 'apt-get update'
+  end
+
+  config.vm.provision :shell do |s|
     s.name = 'librarian-puppet install'
     s.inline = 'cd /vagrant/puppet && librarian-puppet install --path=./modules'
   end
