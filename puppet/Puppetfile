@@ -6,15 +6,15 @@ mod "puppetlabs/vcsrepo"
 # Module for creating NSIDC Jenkins servers
 mod "nsidc/nsidc_jenkins",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-jenkins.git",
-  :ref => 'latest'
+  :ref => 'v3.0.0'
 
 mod "nsidc/nsidc_nfs",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-nfs.git",
-  :ref => 'latest'
+  :ref => 'v2.0.0'
 
 mod "nsidc/nsidc_miniconda",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",
-  :ref => "latest"
+  :ref => 'v7.0.0'
 
 # Vault client module
 mod 'nsidc/nsidc_vault_client',
