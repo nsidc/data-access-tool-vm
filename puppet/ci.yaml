@@ -6,7 +6,7 @@ classes:
 
 nsidc_miniconda::install:
   /opt/miniconda:
-    version: '3.9.1'
+    version: '4.3.27'
     owner: vagrant
     group: vagrant
     build: true
@@ -15,9 +15,9 @@ nsidc_miniconda::install:
       channels:
         anaconda_nsidc_main: true
         anaconda_nsidc_dev: true
+        conda_forge: true
     packages:
-    - bumpversion==0.5.1
-    - fabric==1.10.1
+    - bumpversion==0.5.3
 
 # Jenkins Plugins
 nsidc_jenkins::plugins:
@@ -57,7 +57,7 @@ nsidc_jenkins::jobs:
 
   "%{hiera('project')}_A02_Provision_VM":
     description: >
-      Provision an integration, QA, staging, or production VM for IceBridge
+      Provision an integration, QA, staging, or production VM for Hermes
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     parameters:
       - type: string
@@ -68,16 +68,16 @@ nsidc_jenkins::jobs:
       #!/bin/bash
       vagrant nsidc hijack --force --env=$target_environment || true
       vagrant nsidc up --env=$target_environment --provision
-      vagrant nsidc ssh --env=$target_environment -c "sudo service icebridge restart"
+      vagrant nsidc ssh --env=$target_environment -c "sudo service hermes restart"
 
-  "%{hiera('project')}_Z01_Integration_Refresh_Portal":
+  "%{hiera('project')}_Z01_Integration_Refresh":
     description: >
-      Pull new images and rebuild and restart portal in integration
+      Pull new images and rebuild and restart application in integration
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     command: |
       #!/bin/bash
       vagrant nsidc hijack --force --env=integration
-      vagrant nsidc ssh --env=integration -c "cd /vagrant/docker-compose && docker pull nsidc/icebridge-interface && docker pull nsidc/icebridge-services && docker pull nsidc/icebridge-workers && sudo service icebridge restart"
+      vagrant nsidc ssh --env=integration -c "cd /vagrant/docker-compose && docker pull nsidc/hermes-interface && docker pull nsidc/hermes-services && docker pull nsidc/hermes-workers && sudo service hermes restart"
 
   "%{hiera('project')}_Create_Release":
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/release
@@ -97,4 +97,6 @@ nsidc_jenkins::jobs:
           - major
     command: |
       git checkout $ref
-      fab version.bump:$version_part
+      bumpversion $version_part
+      git push
+      git push --tags
