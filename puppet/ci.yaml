@@ -70,9 +70,9 @@ nsidc_jenkins::jobs:
       vagrant nsidc up --env=$target_environment --provision
       vagrant nsidc ssh --env=$target_environment -c "sudo service hermes restart"
 
-  "%{hiera('project')}_Z01_Integration_Refresh_Portal":
+  "%{hiera('project')}_Z01_Integration_Refresh":
     description: >
-      Pull new images and rebuild and restart portal in integration
+      Pull new images and rebuild and restart application in integration
     workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
     command: |
       #!/bin/bash
