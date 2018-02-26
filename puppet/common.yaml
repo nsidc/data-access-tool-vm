@@ -9,6 +9,6 @@ nsidc_nfs::sharemounts:
   /share/apps/hermes:
     project: apps
     share: hermes
-  /share/apps/hermes-order-data:
+  /share/apps/hermes-orders:
     project: appdata
-    share: hermes-order-data
+    share: hermes-orders

@@ -21,7 +21,7 @@ file { 'rabbitmq-db-dir':
 }
 ->
 file { 'data-share':
-  path   => "/share/apps/hermes-order-data/${hermes_env}",
+  path   => "/share/apps/hermes-orders/${hermes_env}",
   ensure => "directory"
 }
 ->
