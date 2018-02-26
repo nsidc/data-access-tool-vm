@@ -14,7 +14,7 @@ mod "nsidc/nsidc_nfs",
 
 mod "nsidc/nsidc_miniconda",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",
-  :ref => "v6.0.0"
+  :ref => "latest"
 
 # Vault client module
 mod 'nsidc/nsidc_vault_client',
