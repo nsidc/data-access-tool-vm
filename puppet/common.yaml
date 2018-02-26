@@ -6,9 +6,9 @@ classes:
   - nsidc_nfs
 
 nsidc_nfs::sharemounts:
-  /share/apps/icebridge-portal:
+  /share/apps/hermes:
     project: apps
-    share: icebridge-portal
-  /share/apps/icebridge-order-data:
+    share: hermes
+  /share/apps/hermes-order-data:
     project: appdata
-    share: icebridge-order-data
+    share: hermes-order-data

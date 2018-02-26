@@ -11,17 +11,17 @@ $hermes_env = $environment ? {
 }
 
 file { 'app-share':
-  path   => "/share/apps/icebridge-portal/${hermes_env}",
+  path   => "/share/apps/hermes/${hermes_env}",
   ensure => "directory"
 }
 ->
 file { 'rabbitmq-db-dir':
-  path => "/share/apps/icebridge-portal/${hermes_env}/rabbitmq",
+  path => "/share/apps/hermes/${hermes_env}/rabbitmq",
   ensure => "directory"
 }
 ->
 file { 'data-share':
-  path   => "/share/apps/icebridge-order-data/${hermes_env}",
+  path   => "/share/apps/hermes-order-data/${hermes_env}",
   ensure => "directory"
 }
 ->
