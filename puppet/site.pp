@@ -55,27 +55,18 @@ if $environment == 'dev' {
     command => 'mkdir -p /home/vagrant/hermes && git clone git@bitbucket.org:nsidc/hermes-stack.git /home/vagrant/hermes/hermes-stack',
     creates => '/home/vagrant/hermes/hermes-stack',
     path => '/usr/bin:/bin'
-  }
-
-  # don't check this in
-  exec { 'dev branch':
-    command => 'git checkout backend-only',
-    cwd => '/home/vagrant/hermes/hermes-stack',
-    path => '/usr/bin',
-    require => [Exec['clone hermes-stack'], Package['jq']]
   } ->
 
   exec { 'clone all the hermes repos':
     command => 'bash ./scripts/clone-dev.sh',
     cwd => '/home/vagrant/hermes/hermes-stack',
     path => '/bin:/usr/bin:/usr/local/bin',
-    require => [Exec['clone hermes-stack'], Package['jq']]
-  }
+    require => [Package['jq']]
+  } ->
 
   exec { 'vagrant permissions':
     command => 'chown -R vagrant:vagrant /home/vagrant/hermes',
-    path => '/bin',
-    require => [Exec['clone all the hermes repos']]
+    path => '/bin'
   }
 }
 
