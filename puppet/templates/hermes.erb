@@ -1,3 +1,5 @@
 export EARTHDATA_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/earthdata', 'username') %>'
 export EARTHDATA_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/earthdata', 'password') %>'
 export GOOGLE_API_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'api_key') %>'
+export DB_CONTAINERHOST=<%= @db_host %>
+export DB_PORT=27017

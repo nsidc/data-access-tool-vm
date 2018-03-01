@@ -10,6 +10,16 @@ $hermes_env = $environment ? {
   default             => 'integration'
 }
 
+if $::environment == 'dev' {
+  $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
+}
+
+$db_host = $::environment ? {
+  'dev'        => "dev.hermes-db.${dev_name}.dev.int.nsidc.org",
+  'production' => "hermes-db.apps.int.nsidc.org",
+  default      => "${::environment}.hermes-db.apps.int.nsidc.org",
+}
+
 file { 'app-share':
   path   => "/share/apps/hermes/${hermes_env}",
   ensure => "directory"
