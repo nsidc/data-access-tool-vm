@@ -26,7 +26,7 @@ file { 'app-share':
 }
 ->
 file { 'rabbitmq-db-dir':
-  path => "/share/apps/hermes/${hermes_env}/rabbitmq",
+  path   => "/share/apps/hermes/${hermes_env}/rabbitmq",
   ensure => "directory"
 }
 ->
@@ -56,7 +56,7 @@ if $environment == 'dev' {
 
   exec { 'setup node':
     command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get install -y nodejs',
-    path => '/usr/bin'
+    path    => '/usr/bin'
   }
 
   package { 'jq': }
@@ -68,25 +68,25 @@ if $environment == 'dev' {
   exec { 'clone hermes-stack':
     command => 'git clone git@bitbucket.org:nsidc/hermes-stack.git /home/vagrant/hermes/hermes-stack',
     creates => '/home/vagrant/hermes/hermes-stack',
-    path => '/usr/bin:/bin'
+    path    => '/usr/bin:/bin'
   } ->
 
   exec { 'clone all the hermes repos':
     command => 'bash ./scripts/clone-dev.sh',
-    cwd => '/home/vagrant/hermes/hermes-stack',
-    path => '/bin:/usr/bin:/usr/local/bin',
+    cwd     => '/home/vagrant/hermes/hermes-stack',
+    path    => '/bin:/usr/bin:/usr/local/bin',
     require => [Package['jq']]
   } ->
 
   exec { 'vagrant permissions':
     command => 'chown -R vagrant:vagrant /home/vagrant/hermes',
-    path => '/bin'
+    path    => '/bin'
   }
 }
 
 exec { 'swarm':
   command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
-  path => ['/usr/bin', '/usr/sbin',]
+  path    => ['/usr/bin', '/usr/sbin',]
 }
 ->
 vcsrepo { "/home/vagrant/hermes/hermes-stack":
@@ -99,7 +99,7 @@ vcsrepo { "/home/vagrant/hermes/hermes-stack":
 ->
 file { '/home/vagrant/hermes/hermes-stack/scripts/docker-cleanup.sh':
   ensure => present,
-  mode => 'u+x'
+  mode   => 'u+x'
 }
 ->
 cron { 'docker-cleanup':
