@@ -1,15 +1,6 @@
 # Load modules and classes
 lookup('classes', {merge => unique}).include
 
-$hermes_env = $environment ? {
-  /(dev|integration)/ => 'integration',
-  /qa/                => 'qa',
-  /staging/           => 'staging',
-  /blue/              => 'production',
-  /production/        => 'production',
-  default             => 'integration'
-}
-
 if $::environment == 'dev' {
   $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
 }
@@ -21,17 +12,17 @@ $db_host = $::environment ? {
 }
 
 file { 'app-share':
-  path   => "/share/apps/hermes/${hermes_env}",
+  path   => "/share/apps/hermes",
   ensure => "directory"
 }
 ->
 file { 'rabbitmq-db-dir':
-  path   => "/share/apps/hermes/${hermes_env}/rabbitmq",
+  path   => "/share/apps/hermes/rabbitmq",
   ensure => "directory"
 }
 ->
 file { 'data-share':
-  path   => "/share/apps/hermes-orders/${hermes_env}",
+  path   => "/share/apps/hermes-orders",
   ensure => "directory"
 }
 ->
@@ -46,11 +37,6 @@ file { 'hermes.sh':
   path   => '/etc/profile.d/hermes.sh'
 }
 ->
-file_line {'set HERMES_ENV':
-  path    => '/etc/profile.d/hermes.sh',
-  line    => "export HERMES_ENV=${hermes_env}",
-  before  => Exec['swarm']
-}
 
 if $environment == 'dev' {
 
