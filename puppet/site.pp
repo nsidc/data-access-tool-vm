@@ -61,8 +61,12 @@ if $environment == 'dev' {
 
   package { 'jq': }
 
+  file { '/home/vagrant/hermes':
+    ensure => directory,
+    owner  => vagrant,
+  } ->
   exec { 'clone hermes-stack':
-    command => 'mkdir -p /home/vagrant/hermes && git clone git@bitbucket.org:nsidc/hermes-stack.git /home/vagrant/hermes/hermes-stack',
+    command => 'git clone git@bitbucket.org:nsidc/hermes-stack.git /home/vagrant/hermes/hermes-stack',
     creates => '/home/vagrant/hermes/hermes-stack',
     path => '/usr/bin:/bin'
   } ->
