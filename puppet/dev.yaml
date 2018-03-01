@@ -15,3 +15,11 @@ nsidc_miniconda::install:
         conda_forge: true
     packages:
     - bumpversion==0.5.3
+
+nsidc_nfs::sharemounts:
+  /share/apps/hermes-all:
+    project: apps
+    share: hermes
+  /share/apps/hermes-orders-all:
+    project: appdata
+    share: hermes-orders
