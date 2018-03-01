@@ -67,14 +67,6 @@ if $environment == 'dev' {
     path => '/usr/bin:/bin'
   } ->
 
-  # don't check this in
-  exec { 'dev branch':
-    command => 'git checkout backend-only',
-    cwd => '/home/vagrant/hermes/hermes-stack',
-    path => '/usr/bin',
-    require => [Package['jq']]
-  } ->
-
   exec { 'clone all the hermes repos':
     command => 'bash ./scripts/clone-dev.sh',
     cwd => '/home/vagrant/hermes/hermes-stack',
