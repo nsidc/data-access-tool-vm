@@ -32,11 +32,6 @@ file { 'envvars':
   path    => '/etc/profile.d/envvars.sh'
 }
 ->
-file { 'hermes.sh':
-  ensure => present,
-  path   => '/etc/profile.d/hermes.sh'
-}
-->
 
 if $environment == 'dev' {
 
