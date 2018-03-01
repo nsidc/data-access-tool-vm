@@ -8,7 +8,7 @@ classes:
 nsidc_nfs::sharemounts:
   /share/apps/hermes:
     project: apps
-    share: hermes
+    share: "hermes/%{environment}"
   /share/apps/hermes-orders:
     project: appdata
-    share: hermes-orders
+    share: "hermes-orders/%{environment}"
