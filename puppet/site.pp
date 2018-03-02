@@ -11,19 +11,10 @@ $db_host = $::environment ? {
   default      => "${::environment}.hermes-db.apps.int.nsidc.org",
 }
 
-file { 'app-share':
-  path   => "/share/apps/hermes",
-  ensure => "directory"
-}
-->
 file { 'rabbitmq-db-dir':
   path   => "/share/apps/hermes/rabbitmq",
-  ensure => "directory"
-}
-->
-file { 'data-share':
-  path   => "/share/apps/hermes-orders",
-  ensure => "directory"
+  ensure => "directory",
+  require => Nsidc_nfs::Sharemount['/share/apps/hermes']
 }
 ->
 file { 'envvars':
