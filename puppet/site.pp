@@ -109,3 +109,12 @@ cron { 'docker-cleanup':
   user    => 'vagrant',
   hour    => '*'
 }
+exec { 'enable systemd service':
+  command => '/bin/systemctl enable /vagrant/puppet/files/hermes.service && /bin/systemctl start hermes.service',
+  require => [File["${stackdir}/service-versions.env"],
+              Exec['swarm'],
+              File['envvars'],
+              Nsidc_nfs::Sharemount['/share/logs/hermes'],
+              Nsidc_nfs::Sharemount['/share/apps/hermes'],
+              Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
+}
