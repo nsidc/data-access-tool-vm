@@ -47,6 +47,16 @@ file { 'envvars':
   path    => '/etc/profile.d/envvars.sh'
 }
 
+file { '/home/vagrant/hermes':
+  ensure => directory,
+  owner  => vagrant,
+} ->
+exec { 'clone hermes-stack':
+  command => "git clone git@bitbucket.org:nsidc/hermes-stack.git ${stackdir}",
+  creates => '/home/vagrant/hermes/hermes-stack',
+  path    => '/usr/bin:/bin'
+}
+
 if $environment == 'dev' {
 
   exec { 'setup node':
@@ -56,21 +66,12 @@ if $environment == 'dev' {
 
   package { 'jq': }
 
-  file { '/home/vagrant/hermes':
-    ensure => directory,
-    owner  => vagrant,
-  } ->
-  exec { 'clone hermes-stack':
-    command => "git clone git@bitbucket.org:nsidc/hermes-stack.git ${stackdir}",
-    creates => '/home/vagrant/hermes/hermes-stack',
-    path    => '/usr/bin:/bin'
-  } ->
-
   exec { 'clone all the hermes repos':
     command => 'bash ./scripts/clone-dev.sh',
     cwd     => '/home/vagrant/hermes/hermes-stack',
     path    => '/bin:/usr/bin:/usr/local/bin',
-    require => [Package['jq']]
+    require => [Package['jq'],
+                Exec['clone hermes-stack']]
   } ->
 
   exec { 'vagrant permissions':
