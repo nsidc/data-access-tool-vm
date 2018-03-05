@@ -1,6 +1,8 @@
 # Load modules and classes
 lookup('classes', {merge => unique}).include
 
+$stackdir = '/home/vagrant/hermes/hermes-stack'
+
 if $::environment == 'dev' {
   $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
 }
@@ -75,6 +77,19 @@ if $environment == 'dev' {
     command => 'chown -R vagrant:vagrant /home/vagrant/hermes',
     path    => '/bin'
   }
+}
+
+$service_versions_target = $::environment ? {
+  'production' => 'prod',
+  'staging'    => 'prod',
+  'qa'         => 'prod',
+  default      => 'integration',
+}
+file { "${stackdir}/service-versions.env":
+  ensure  => link,
+  target  => "${stackdir}/service-versions.${service_versions_target}.env",
+  owner   => vagrant,
+  require => Exec['clone hermes-stack'],
 }
 
 exec { 'swarm':
