@@ -24,7 +24,7 @@ nsidc_nfs::sharemount { '/share/apps/hermes':
 }
 nsidc_nfs::sharemount { '/share/apps/hermes-orders':
   options => 'rw',
-  project => 'apps',
+  project => 'appdata',
   share   => "hermes-orders/${nfs_share_postfix}",
 }
 nsidc_nfs::sharemount { '/share/logs/hermes':
@@ -44,7 +44,6 @@ file { 'envvars':
   content => vault_template('/vagrant/puppet/templates/hermes.erb'),
   path    => '/etc/profile.d/envvars.sh'
 }
-->
 
 if $environment == 'dev' {
 
