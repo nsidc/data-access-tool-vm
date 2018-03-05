@@ -24,7 +24,7 @@ nsidc_nfs::sharemount { '/share/apps/hermes':
 }
 nsidc_nfs::sharemount { '/share/apps/hermes-orders':
   options => 'rw',
-  project => 'apps',
+  project => 'appdata',
   share   => "hermes-orders/${nfs_share_postfix}",
 }
 nsidc_nfs::sharemount { '/share/logs/hermes':
