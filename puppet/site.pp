@@ -44,7 +44,6 @@ file { 'envvars':
   content => vault_template('/vagrant/puppet/templates/hermes.erb'),
   path    => '/etc/profile.d/envvars.sh'
 }
-->
 
 if $environment == 'dev' {
 
