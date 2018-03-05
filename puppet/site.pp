@@ -11,6 +11,28 @@ $db_host = $::environment ? {
   default      => "${::environment}.hermes-db.apps.int.nsidc.org",
 }
 
+$nfs_share_postfix = $::environment ? {
+  'dev'   => "${::environment}/${dev_name}",
+  default => "${::environment}"
+
+}
+
+nsidc_nfs::sharemount { '/share/apps/hermes':
+  options => 'rw',
+  project => 'apps',
+  share   => "hermes/${geoserver_share}",
+}
+nsidc_nfs::sharemount { '/share/apps/hermes-orders':
+  options => 'rw',
+  project => 'apps',
+  share   => "hermes-orders/${nfs_share_postfix}",
+}
+nsidc_nfs::sharemount { '/share/logs/hermes':
+  options => 'rw',
+  project => 'logs',
+  share   => "hermes/${nfs_share_postfix}",
+}
+
 file { 'rabbitmq-db-dir':
   path   => "/share/apps/hermes/rabbitmq",
   ensure => "directory",
