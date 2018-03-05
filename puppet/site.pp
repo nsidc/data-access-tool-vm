@@ -109,8 +109,9 @@ cron { 'docker-cleanup':
   user    => 'vagrant',
   hour    => '*'
 }
-exec { 'enable systemd service':
-  command => '/bin/systemctl enable /vagrant/puppet/files/hermes.service && /bin/systemctl start hermes.service',
+exec { 'start hermes-stack':
+  command => '/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes',
+  cwd     => "${stackdir}",
   require => [File["${stackdir}/service-versions.env"],
               Exec['swarm'],
               File['envvars'],
