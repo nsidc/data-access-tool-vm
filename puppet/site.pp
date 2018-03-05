@@ -20,7 +20,7 @@ $nfs_share_postfix = $::environment ? {
 nsidc_nfs::sharemount { '/share/apps/hermes':
   options => 'rw',
   project => 'apps',
-  share   => "hermes/${geoserver_share}",
+  share   => "hermes/${nfs_share_postfix}",
 }
 nsidc_nfs::sharemount { '/share/apps/hermes-orders':
   options => 'rw',
