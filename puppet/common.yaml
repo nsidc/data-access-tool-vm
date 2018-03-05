@@ -4,11 +4,3 @@ lookup_options:
 
 classes:
   - nsidc_nfs
-
-nsidc_nfs::sharemounts:
-  /share/apps/hermes:
-    project: apps
-    share: hermes
-  /share/apps/hermes-orders:
-    project: appdata
-    share: hermes-orders
