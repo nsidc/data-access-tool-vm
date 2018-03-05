@@ -61,7 +61,7 @@ if $environment == 'dev' {
     owner  => vagrant,
   } ->
   exec { 'clone hermes-stack':
-    command => 'git clone git@bitbucket.org:nsidc/hermes-stack.git /home/vagrant/hermes/hermes-stack',
+    command => "git clone git@bitbucket.org:nsidc/hermes-stack.git ${stackdir}",
     creates => '/home/vagrant/hermes/hermes-stack',
     path    => '/usr/bin:/bin'
   } ->
@@ -97,21 +97,14 @@ exec { 'swarm':
   path    => ['/usr/bin', '/usr/sbin',]
 }
 ->
-vcsrepo { "/home/vagrant/hermes/hermes-stack":
-  ensure   => present,
-  provider => git,
-  source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
-  owner    => 'vagrant',
-  group    => 'vagrant'
-}
-->
-file { '/home/vagrant/hermes/hermes-stack/scripts/docker-cleanup.sh':
-  ensure => present,
-  mode   => 'u+x'
+file { "${stackdir}/scripts/docker-cleanup.sh":
+  ensure  => present,
+  mode    => 'u+x',
+  require => Exec['clone hermes-stack'],
 }
 ->
 cron { 'docker-cleanup':
-  command => '/home/vagrant/hermes/hermes-stack/scripts/docker-cleanup.sh',
+  command => "${stackdir}/scripts/docker-cleanup.sh",
   user    => 'vagrant',
   hour    => '*'
 }
