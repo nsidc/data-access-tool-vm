@@ -1,6 +1,8 @@
 # Load modules and classes
 lookup('classes', {merge => unique}).include
 
+$stackdir = '/home/vagrant/hermes/hermes-stack'
+
 if $::environment == 'dev' {
   $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
 }
@@ -45,6 +47,19 @@ file { 'envvars':
   path    => '/etc/profile.d/envvars.sh'
 }
 
+file { '/home/vagrant/hermes':
+  ensure => directory,
+  owner  => vagrant,
+} ->
+vcsrepo { 'clone hermes-stack':
+  ensure   => present,
+  path     => '/home/vagrant/hermes/hermes-stack',
+  provider => git,
+  source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
+  owner    => 'vagrant',
+  group    => 'vagrant'
+}
+
 if $environment == 'dev' {
 
   exec { 'setup node':
@@ -54,21 +69,12 @@ if $environment == 'dev' {
 
   package { 'jq': }
 
-  file { '/home/vagrant/hermes':
-    ensure => directory,
-    owner  => vagrant,
-  } ->
-  exec { 'clone hermes-stack':
-    command => 'git clone git@bitbucket.org:nsidc/hermes-stack.git /home/vagrant/hermes/hermes-stack',
-    creates => '/home/vagrant/hermes/hermes-stack',
-    path    => '/usr/bin:/bin'
-  } ->
-
   exec { 'clone all the hermes repos':
     command => 'bash ./scripts/clone-dev.sh',
     cwd     => '/home/vagrant/hermes/hermes-stack',
     path    => '/bin:/usr/bin:/usr/local/bin',
-    require => [Package['jq']]
+    require => [Package['jq'],
+                Vcsrepo['clone hermes-stack']]
   } ->
 
   exec { 'vagrant permissions':
@@ -77,26 +83,42 @@ if $environment == 'dev' {
   }
 }
 
+$service_versions_target = $::environment ? {
+  'production' => 'prod',
+  'staging'    => 'prod',
+  'qa'         => 'prod',
+  default      => 'integration',
+}
+file { "${stackdir}/service-versions.env":
+  ensure  => link,
+  target  => "${stackdir}/service-versions.${service_versions_target}.env",
+  owner   => vagrant,
+  require => Vcsrepo['clone hermes-stack'],
+}
+
 exec { 'swarm':
   command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
   path    => ['/usr/bin', '/usr/sbin',]
 }
 ->
-vcsrepo { "/home/vagrant/hermes/hermes-stack":
-  ensure   => present,
-  provider => git,
-  source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
-  owner    => 'vagrant',
-  group    => 'vagrant'
-}
-->
-file { '/home/vagrant/hermes/hermes-stack/scripts/docker-cleanup.sh':
-  ensure => present,
-  mode   => 'u+x'
+file { "${stackdir}/scripts/docker-cleanup.sh":
+  ensure  => present,
+  mode    => 'u+x',
+  require => Vcsrepo['clone hermes-stack'],
 }
 ->
 cron { 'docker-cleanup':
-  command => '/home/vagrant/hermes/hermes-stack/scripts/docker-cleanup.sh',
+  command => "${stackdir}/scripts/docker-cleanup.sh",
   user    => 'vagrant',
   hour    => '*'
+}
+exec { 'start hermes-stack':
+  command => '/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes',
+  cwd     => "${stackdir}",
+  require => [File["${stackdir}/service-versions.env"],
+              Exec['swarm'],
+              File['envvars'],
+              Nsidc_nfs::Sharemount['/share/logs/hermes'],
+              Nsidc_nfs::Sharemount['/share/apps/hermes'],
+              Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
 }
