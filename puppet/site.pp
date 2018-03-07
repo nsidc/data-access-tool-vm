@@ -51,10 +51,13 @@ file { '/home/vagrant/hermes':
   ensure => directory,
   owner  => vagrant,
 } ->
-exec { 'clone hermes-stack':
-  command => "git clone git@bitbucket.org:nsidc/hermes-stack.git ${stackdir}",
-  creates => '/home/vagrant/hermes/hermes-stack',
-  path    => '/usr/bin:/bin'
+vcsrepo { 'clone hermes-stack':
+  ensure   => present,
+  path     => '/home/vagrant/hermes/hermes-stack',
+  provider => git,
+  source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
+  owner    => 'vagrant',
+  group    => 'vagrant'
 }
 
 if $environment == 'dev' {
@@ -71,7 +74,7 @@ if $environment == 'dev' {
     cwd     => '/home/vagrant/hermes/hermes-stack',
     path    => '/bin:/usr/bin:/usr/local/bin',
     require => [Package['jq'],
-                Exec['clone hermes-stack']]
+                Vcsrepo['clone hermes-stack']]
   } ->
 
   exec { 'vagrant permissions':
@@ -90,7 +93,7 @@ file { "${stackdir}/service-versions.env":
   ensure  => link,
   target  => "${stackdir}/service-versions.${service_versions_target}.env",
   owner   => vagrant,
-  require => Exec['clone hermes-stack'],
+  require => Vcsrepo['clone hermes-stack'],
 }
 
 exec { 'swarm':
@@ -101,7 +104,7 @@ exec { 'swarm':
 file { "${stackdir}/scripts/docker-cleanup.sh":
   ensure  => present,
   mode    => 'u+x',
-  require => Exec['clone hermes-stack'],
+  require => Vcsrepo['clone hermes-stack'],
 }
 ->
 cron { 'docker-cleanup':
