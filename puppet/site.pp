@@ -96,11 +96,6 @@ file { "${stackdir}/service-versions.env":
   require => Vcsrepo['clone hermes-stack'],
 }
 
-exec { 'swarm':
-  command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
-  path    => ['/usr/bin', '/usr/sbin',]
-}
-->
 file { "${stackdir}/scripts/docker-cleanup.sh":
   ensure  => present,
   mode    => 'u+x',
@@ -112,13 +107,35 @@ cron { 'docker-cleanup':
   user    => 'vagrant',
   hour    => '*'
 }
-exec { 'start hermes-stack':
-  command => '/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes',
-  cwd     => "${stackdir}",
-  require => [File["${stackdir}/service-versions.env"],
-              Exec['swarm'],
-              File['envvars'],
-              Nsidc_nfs::Sharemount['/share/logs/hermes'],
-              Nsidc_nfs::Sharemount['/share/apps/hermes'],
-              Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
+
+if $environment == 'dev' {
+  exec { 'build hermes-stack':
+    command => '/bin/bash -c "./scripts/build-dev.sh"',
+    cwd     => "${stackdir}",
+    timeout => 600,
+    require => [File["${stackdir}/service-versions.env"],
+                Exec['clone all the hermes repos'],
+                File['envvars']],
+    # sometimes getting a mysterious error from docker-compose build that
+    # resolves by simply trying again; finding the root of that problem would be
+    # better than retrying here
+    tries => 3
+  } ->
+  exec { 'init and start hermes-stack':
+    command => '/bin/bash -c "./scripts/init-dev.sh && ./scripts/start-dev.sh"',
+    cwd     => "${stackdir}"
+  }
+}
+else {
+  exec { 'swarm':
+    command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
+    path    => ['/usr/bin', '/usr/sbin',]
+  }
+  ->
+  exec { 'start hermes-stack':
+    command => '/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes',
+    cwd     => "${stackdir}",
+    require => [File["${stackdir}/service-versions.env"],
+                File['envvars']]
+  }
 }
