@@ -113,17 +113,16 @@ if $environment == 'dev' {
     command => '/bin/bash -c "./scripts/build-dev.sh"',
     cwd     => "${stackdir}",
     timeout => 600,
-    tries => 3,
     require => [File["${stackdir}/service-versions.env"],
                 Exec['clone all the hermes repos'],
-                File['envvars']]
+                File['envvars']],
+    # sometimes getting a mysterious error from docker-compose build that
+    # resolves by simply trying again; finding the root of that problem would be
+    # better than retrying here
+    tries => 3
   } ->
-  exec { 'init hermes-stack':
-    command => '/bin/bash -c "./scripts/init-dev.sh"',
-    cwd     => "${stackdir}"
-  } ->
-  exec { 'start hermes-stack':
-    command => '/bin/bash -c "./scripts/start-dev.sh"',
+  exec { 'init and start hermes-stack':
+    command => '/bin/bash -c "./scripts/init-dev.sh && ./scripts/start-dev.sh"',
     cwd     => "${stackdir}"
   }
 }
