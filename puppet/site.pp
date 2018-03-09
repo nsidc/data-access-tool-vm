@@ -109,13 +109,22 @@ cron { 'docker-cleanup':
 }
 
 if $environment == 'dev' {
-  exec { 'start hermes-stack':
-    command => '/bin/bash -c "./scripts/build-dev.sh && ./scripts/init-dev.sh && ./scripts/start-dev.sh"',
+  exec { 'build hermes-stack':
+    command => '/bin/bash -c "./scripts/build-dev.sh"',
     cwd     => "${stackdir}",
     timeout => 600,
+    tries => 3,
     require => [File["${stackdir}/service-versions.env"],
                 Exec['clone all the hermes repos'],
                 File['envvars']]
+  } ->
+  exec { 'init hermes-stack':
+    command => '/bin/bash -c "./scripts/init-dev.sh"',
+    cwd     => "${stackdir}"
+  } ->
+  exec { 'start hermes-stack':
+    command => '/bin/bash -c "./scripts/start-dev.sh"',
+    cwd     => "${stackdir}"
   }
 }
 else {
