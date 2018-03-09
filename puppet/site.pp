@@ -15,8 +15,8 @@ $db_host = $::environment ? {
 
 $nfs_share_postfix = $::environment ? {
   'dev'   => "${::environment}/${dev_name}",
+  'ci'    => '',
   default => "${::environment}"
-
 }
 
 nsidc_nfs::sharemount { '/share/apps/hermes':
@@ -35,90 +35,92 @@ nsidc_nfs::sharemount { '/share/logs/hermes':
   share   => "hermes/${nfs_share_postfix}",
 }
 
-file { 'rabbitmq-db-dir':
-  path   => "/share/apps/hermes/rabbitmq",
-  ensure => "directory",
-  require => Nsidc_nfs::Sharemount['/share/apps/hermes']
-}
-->
-file { 'envvars':
-  ensure  => file,
-  content => vault_template('/vagrant/puppet/templates/hermes.erb'),
-  path    => '/etc/profile.d/envvars.sh'
-}
-
-file { '/home/vagrant/hermes':
-  ensure => directory,
-  owner  => vagrant,
-} ->
-vcsrepo { 'clone hermes-stack':
-  ensure   => present,
-  path     => '/home/vagrant/hermes/hermes-stack',
-  provider => git,
-  source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
-  owner    => 'vagrant',
-  group    => 'vagrant'
-}
-
-if $environment == 'dev' {
-
-  exec { 'setup node':
-    command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get install -y nodejs',
-    path    => '/usr/bin'
+if $::environment != 'ci' {
+  file { 'rabbitmq-db-dir':
+    path   => "/share/apps/hermes/rabbitmq",
+    ensure => "directory",
+    require => Nsidc_nfs::Sharemount['/share/apps/hermes']
+  }
+  ->
+  file { 'envvars':
+    ensure  => file,
+    content => vault_template('/vagrant/puppet/templates/hermes.erb'),
+    path    => '/etc/profile.d/envvars.sh'
   }
 
-  package { 'jq': }
-
-  exec { 'clone all the hermes repos':
-    command => 'bash ./scripts/clone-dev.sh',
-    cwd     => '/home/vagrant/hermes/hermes-stack',
-    path    => '/bin:/usr/bin:/usr/local/bin',
-    require => [Package['jq'],
-                Vcsrepo['clone hermes-stack']]
+  file { '/home/vagrant/hermes':
+    ensure => directory,
+    owner  => vagrant,
   } ->
-
-  exec { 'vagrant permissions':
-    command => 'chown -R vagrant:vagrant /home/vagrant/hermes',
-    path    => '/bin'
+  vcsrepo { 'clone hermes-stack':
+    ensure   => present,
+    path     => '/home/vagrant/hermes/hermes-stack',
+    provider => git,
+    source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
+    owner    => 'vagrant',
+    group    => 'vagrant'
   }
-}
 
-$service_versions_target = $::environment ? {
-  'production' => 'prod',
-  'staging'    => 'prod',
-  'qa'         => 'prod',
-  default      => 'integration',
-}
-file { "${stackdir}/service-versions.env":
-  ensure  => link,
-  target  => "${stackdir}/service-versions.${service_versions_target}.env",
-  owner   => vagrant,
-  require => Vcsrepo['clone hermes-stack'],
-}
+  if $environment == 'dev' {
 
-exec { 'swarm':
-  command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
-  path    => ['/usr/bin', '/usr/sbin',]
-}
-->
-file { "${stackdir}/scripts/docker-cleanup.sh":
-  ensure  => present,
-  mode    => 'u+x',
-  require => Vcsrepo['clone hermes-stack'],
-}
-->
-cron { 'docker-cleanup':
-  command => "${stackdir}/scripts/docker-cleanup.sh",
-  user    => 'vagrant',
-  hour    => '*'
-}
-exec { 'start hermes-stack':
-  command => '/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes',
-  cwd     => "${stackdir}",
-  require => [File["${stackdir}/service-versions.env"],
-              Exec['swarm'],
-              File['envvars'],
-              Nsidc_nfs::Sharemount['/share/logs/hermes'],
-              Nsidc_nfs::Sharemount['/share/apps/hermes'],
-              Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
+    exec { 'setup node':
+      command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get install -y nodejs',
+      path    => '/usr/bin'
+    }
+
+    package { 'jq': }
+
+    exec { 'clone all the hermes repos':
+      command => 'bash ./scripts/clone-dev.sh',
+      cwd     => '/home/vagrant/hermes/hermes-stack',
+      path    => '/bin:/usr/bin:/usr/local/bin',
+      require => [Package['jq'],
+                  Vcsrepo['clone hermes-stack']]
+    } ->
+
+    exec { 'vagrant permissions':
+      command => 'chown -R vagrant:vagrant /home/vagrant/hermes',
+      path    => '/bin'
+    }
+  }
+
+  $service_versions_target = $::environment ? {
+    'production' => 'prod',
+    'staging'    => 'prod',
+    'qa'         => 'prod',
+    default      => 'integration',
+  }
+  file { "${stackdir}/service-versions.env":
+    ensure  => link,
+    target  => "${stackdir}/service-versions.${service_versions_target}.env",
+    owner   => vagrant,
+    require => Vcsrepo['clone hermes-stack'],
+  }
+
+  exec { 'swarm':
+    command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
+    path    => ['/usr/bin', '/usr/sbin',]
+  }
+  ->
+  file { "${stackdir}/scripts/docker-cleanup.sh":
+    ensure  => present,
+    mode    => 'u+x',
+    require => Vcsrepo['clone hermes-stack'],
+  }
+  ->
+  cron { 'docker-cleanup':
+    command => "${stackdir}/scripts/docker-cleanup.sh",
+    user    => 'vagrant',
+    hour    => '*'
+  }
+  exec { 'start hermes-stack':
+    command => '/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes',
+    cwd     => "${stackdir}",
+    require => [File["${stackdir}/service-versions.env"],
+                Exec['swarm'],
+                File['envvars'],
+                Nsidc_nfs::Sharemount['/share/logs/hermes'],
+                Nsidc_nfs::Sharemount['/share/apps/hermes'],
+                Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
+  }
 }
