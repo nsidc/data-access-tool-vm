@@ -134,7 +134,7 @@ if $::environment != 'ci' {
     }
     ->
     exec { 'start hermes-stack':
-      command => '/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes',
+      command => '/bin/bash -lc "/usr/bin/docker stack deploy -c docker-stack.yml --with-registry-auth hermes"',
       cwd     => "${stackdir}",
       require => [File["${stackdir}/service-versions.env"],
                   Exec['swarm'],
