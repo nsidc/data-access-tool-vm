@@ -2,101 +2,221 @@
 
 classes:
   - nsidc_jenkins
-  - nsidc_miniconda
+  - nsidc_nfs
 
-nsidc_miniconda::install:
-  /opt/miniconda:
-    version: '4.3.27'
-    owner: vagrant
-    group: vagrant
-    build: true
-    config:
-      location: /home/vagrant
-      channels:
-        anaconda_nsidc_main: true
-        anaconda_nsidc_dev: true
-        conda_forge: true
-    packages:
-    - bumpversion==0.5.3
+# NFS Mounts
+nsidc_nfs::sharemounts:
+  /share/sw/packages:
+    project: sw
+    share: packages
 
-# Jenkins Plugins
 nsidc_jenkins::plugins:
-  xvnc: {}
   simple-theme-plugin: {}
   parameterized-trigger:
     version: 2.25
 
+workspace: "/var/lib/jenkins/workspaces/%{hiera('project')}"
+
+recreate-vm: |
+  rm -rf .vagrant-${environment}
+  vagrant nsidc hijack --env=${environment} || true
+  vagrant nsidc recreate --env=${environment} || true
+
 # Jenkins Jobs
 nsidc_jenkins::jobs:
-  "%{hiera('project')}_A01_Checkout_Project":
-    description: clone the project into workspaces/%{hiera('project')}
-    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
-    parameters:
-      - type: string
-        name: ref
-        description: git ref (branch, tag, or SHA) to checkout
-        default: master
-      - type: choice
-        name: target_environment
-        description: The VM environment to deploy to
-        choices:
-          - integration
-          - qa
-          - staging
-          - blue
+
+
+  "%{hiera('project')}_A1_Provision_Integration_VM":
     git:
       repo: "%{hiera('gitrepo')}"
       poll_scm: true
-    command: |
-      git checkout $ref
-    triggers:
-      - jobs:
-          - "%{hiera('project')}_A02_Provision_VM"
-        parameters:
-          current_build_parameters: true
-
-  "%{hiera('project')}_A02_Provision_VM":
-    description: >
-      Provision an integration, QA, staging, or production VM for Hermes
-    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
-    parameters:
-      - type: string
-        name: target_environment
-        description: VM environment to build
-        default: "integration"
-    command: |
-      #!/bin/bash
-      vagrant nsidc hijack --force --env=$target_environment || true
-      vagrant nsidc up --env=$target_environment --provision
-      vagrant nsidc ssh --env=$target_environment -c "sudo service hermes restart"
-
-  "%{hiera('project')}_Z01_Integration_Refresh":
-    description: >
-      Pull new images and rebuild and restart application in integration
-    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}
-    command: |
-      #!/bin/bash
-      vagrant nsidc hijack --force --env=integration
-      vagrant nsidc ssh --env=integration -c "cd /vagrant/docker-compose && docker pull nsidc/hermes-interface && docker pull nsidc/hermes-services && docker pull nsidc/hermes-workers && sudo service hermes restart"
-
-  "%{hiera('project')}_Create_Release":
-    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/release
-    git:
-      repo: "%{hiera('gitrepo')}"
     parameters:
       - type: string
         name: ref
-        description: git ref (branch, tag, commit SHA) to checkout
+        description: hermes-vm project''s git ref (branch, tag, commit SHA) to check out and provision
         default: master
-      - type: choice
-        name: version_part
-        description: The part of the version to increase, according to SemVer.
-        choices:
-          - patch
-          - minor
-          - major
+    wrappers:
+      - name: build name
+        template: "#${BUILD_NUMBER} ${ref}"
+    workspace: "%{hiera('workspace')}/integration"
+    description: Hijack and provision the VM for Integration environment
     command: |
+      set -ex
+      environment=integration
       git checkout $ref
-      bumpversion $version_part
-      git push
-      git push --tags
+      %{hiera('recreate-vm')}
+    triggers:
+      - jobs:
+          - "%{hiera('project')}_A3_Integration_Tests"
+        without_parameters: true
+
+
+  "%{hiera('project')}_A2_Deploy_Integration_Stack_Latest":
+    parameters:
+      - type: string
+        name: ref
+        description: hermes-stack project''s git ref (branch, tag, commit SHA) to check out and deploy
+        default: master
+    wrappers:
+      - name: build name
+        template: "#${BUILD_NUMBER} ${ref}"
+    workspace: "%{hiera('workspace')}/integration"
+    description: fetch latest images and start the docker stack
+    command: |
+      set -ex
+      environment=integration
+      vagrant nsidc hijack --env=${environment}
+      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
+      #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
+    triggers:
+      - jobs:
+          - "%{hiera('project')}_A3_Integration_Tests"
+        without_parameters: true
+
+
+  "%{hiera('project')}_A3_Integration_Tests":
+    workspace: "%{hiera('workspace')}/integration"
+    description: Run all tests for the stack on the integration VM.
+    command: |
+      set -ex
+      environment=integration
+      vagrant nsidc hijack --env=${environment}
+      vagrant nsidc ssh --env=${environment} -c 'return true'
+      #vagrant nsidc ssh --env=${environment} -c 'docker-compose -f docker-compose.test.yml run hermes-test'
+
+
+
+# QA ==========================================================
+
+
+  "%{hiera('project')}_B1_Provision_QA_VM":
+    git:
+      repo: "%{hiera('gitrepo')}"
+      poll_scm: false
+    parameters:
+      - type: string
+        name: ref
+        description: hermes-vm project''s git ref (branch, tag, commit SHA) to check out
+        default: master
+    wrappers:
+      - name: build name
+        template: "#${BUILD_NUMBER} ${ref}"
+    workspace: "%{hiera('workspace')}/qa"
+    description: Hijack and provision the VM for QA environment
+    command: |
+      set -ex
+      environment=qa
+      git checkout $ref
+      %{hiera('recreate-vm')}
+
+
+  "%{hiera('project')}_B2_Deploy_QA_Stack":
+    parameters:
+      - type: string
+        name: ref
+        description: hermes-stack project''s git ref (branch, tag, commit SHA) to check out and deploy
+        default: master
+    wrappers:
+      - name: build name
+        template: "#${BUILD_NUMBER} ${ref}"
+    workspace: "%{hiera('workspace')}/qa"
+    description: fetch latest images and start the docker stack
+    command: |
+      set -ex
+      environment=qa
+      vagrant nsidc hijack --env=${environment}
+      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
+      #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
+
+
+  "%{hiera('project')}_B3_QA_Integration_Tests":
+    workspace: "%{hiera('workspace')}/qa"
+    description: Run all tests for the stack on the integration VM.
+    command: |
+      set -ex
+      environment=qa
+      vagrant nsidc hijack --env=${environment}
+      vagrant nsidc ssh --env=${environment} -c 'return true'
+      #vagrant nsidc ssh --env=${environment} -c 'docker-compose -f docker-compose.test.yml run hermes-test'
+
+
+
+  # ============================================================================
+  # Release new production/staging machines.
+
+
+  "%{hiera('project')}_C1_Provision_Staging_and_Production_VMs":
+    git:
+      repo: "%{hiera('gitrepo')}"
+      poll_scm: false
+      checkout_local: false
+    parameters:
+      - type: string
+        name: ref
+        description: |
+          This is the reference of the hermes-vm project.  It describes the
+          state of the virtual machines to deploy the software onto.
+        default: master
+    wrappers:
+      - name: build name
+        template: "#${BUILD_NUMBER} ${ref}"
+    workspace: "%{hiera('workspace')}/production"
+    description: |
+      Job to create production and staging machines for deployment to live site.
+
+      This job will destroy and provision a staging and blue machine.  It will
+      download the dockerhub images described in the service-versions.env file.
+      and then start the software stack.
+    command: |
+      set -ex
+
+      git checkout $ref
+
+      for env in staging blue; do
+        environment=$env
+        %{hiera('recreate-vm')}
+      done
+
+
+  "%{hiera('project')}_C2_Deploy_Production_Stack":
+    parameters:
+      - type: string
+        name: ref
+        description: hermes-stack project''s git ref (branch, tag, commit SHA) to check out and deploy
+        default: master
+    wrappers:
+      - name: build name
+        template: "#${BUILD_NUMBER} ${ref}"
+    workspace: "%{hiera('workspace')}/production"
+    description: fetch images at specified version and start the docker stack
+    command: |
+      set -ex
+      environment=production
+      vagrant nsidc hijack --env=${environment}
+      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
+      #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
+
+
+
+  # ============================================================================
+  # Implode
+
+
+  "%{hiera('project')}_D_Destroy_PreProduction_VMs":
+    git:
+      repo: "%{hiera('gitrepo')}"
+    workspace: /var/lib/jenkins/workspaces/%{hiera('project')}/cleanup
+    description: Clean up project (destroy all the VMs).
+    command: |
+      #!/bin/bash -ex
+      for env in integration qa staging blue; do
+        rm -rf .vagrant-$env
+        vagrant nsidc hijack --env=$env || true
+        vagrant nsidc destroy --env=$env || true
+      done
+      echo 'When this job completes, you can destroy the ci environment on the'
+      echo 'system from which it was created (e.g. your workstation), with the'
+      echo 'commands:'
+      echo '  >>  rm -rf .vagrant-ci'
+      echo '  >>  vagrant nsidc hijack --env=ci'
+      echo '  >>  vagrant nsidc destroy --env=ci'
