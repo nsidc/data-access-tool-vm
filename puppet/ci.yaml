@@ -66,9 +66,7 @@ nsidc_jenkins::jobs:
       set -ex
       environment=integration
       vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "cd /vagrant/home/hermes/hermes-stack && \
-        source service-versions.env && \
-        docker stack deploy -c docker-stack.yml --with-registry-auth"
+      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
       #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
     triggers:
       - jobs:
@@ -127,9 +125,7 @@ nsidc_jenkins::jobs:
       set -ex
       environment=qa
       vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "cd /vagrant/home/hermes/hermes-stack && \
-        source service-versions.env && \
-        docker stack deploy -c docker-stack.yml --with-registry-auth"
+      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
       #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
 
 
@@ -197,9 +193,7 @@ nsidc_jenkins::jobs:
       set -ex
       environment=production
       vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "cd /vagrant/home/hermes/hermes-stack && \
-        source service-versions.env && \
-        docker stack deploy -c docker-stack.yml --with-registry-auth"
+      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
       #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
 
 
