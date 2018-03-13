@@ -110,6 +110,12 @@ if $::environment != 'ci' {
   }
 
   if $environment == 'dev' {
+    File { "${stackdir}/docker-compose.override.yml":
+      ensure  => link,
+      target  => "${stackdir}/docker-compose.dev.yml",
+      owner   => vagrant,
+      require => Vcsrepo['clone hermes-stack'],
+    } ->
     exec { 'build hermes-stack':
       command => '/bin/bash -c "./scripts/build-dev.sh"',
       cwd     => "${stackdir}",
