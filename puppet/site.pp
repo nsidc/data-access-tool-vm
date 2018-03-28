@@ -128,8 +128,8 @@ if $::environment != 'ci' {
       # better than retrying here
       tries => 3
     } ->
-    exec { 'init and start hermes-stack':
-      command => '/bin/bash -c "./scripts/init-dev.sh && ./scripts/start-dev.sh"',
+    exec { 'start hermes-stack':
+      command => '/bin/bash -c "./scripts/start-dev.sh"',
       cwd     => "${stackdir}"
     }
   }
