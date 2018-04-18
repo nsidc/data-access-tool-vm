@@ -25,7 +25,6 @@ recreate-vm: |
 # Jenkins Jobs
 nsidc_jenkins::jobs:
 
-
   "%{hiera('project')}_A1_Provision_Integration_VM":
     git:
       repo: "%{hiera('gitrepo')}"
@@ -50,7 +49,6 @@ nsidc_jenkins::jobs:
           - "%{hiera('project')}_A3_Integration_Tests"
         without_parameters: true
 
-
   "%{hiera('project')}_A2_Deploy_Integration_Stack_Latest":
     parameters:
       - type: string
@@ -61,18 +59,16 @@ nsidc_jenkins::jobs:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
     workspace: "%{hiera('workspace')}/integration"
-    description: fetch latest images and start the docker stack
+    description: Fetch latest images and start the docker stack.
     command: |
       set -ex
       environment=integration
       vagrant nsidc hijack --env=${environment}
       vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
-      #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
     triggers:
       - jobs:
           - "%{hiera('project')}_A3_Integration_Tests"
         without_parameters: true
-
 
   "%{hiera('project')}_A3_Integration_Tests":
     workspace: "%{hiera('workspace')}/integration"
@@ -82,12 +78,8 @@ nsidc_jenkins::jobs:
       environment=integration
       vagrant nsidc hijack --env=${environment}
       vagrant nsidc ssh --env=${environment} -c 'return true'
-      #vagrant nsidc ssh --env=${environment} -c 'docker-compose -f docker-compose.test.yml run hermes-test'
-
-
 
 # QA ==========================================================
-
 
   "%{hiera('project')}_B1_Provision_QA_VM":
     git:
@@ -109,7 +101,6 @@ nsidc_jenkins::jobs:
       git checkout $ref
       %{hiera('recreate-vm')}
 
-
   "%{hiera('project')}_B2_Deploy_QA_Stack":
     parameters:
       - type: string
@@ -120,30 +111,24 @@ nsidc_jenkins::jobs:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
     workspace: "%{hiera('workspace')}/qa"
-    description: fetch latest images and start the docker stack
+    description: Fetch images configured for production version and start the docker stack.
     command: |
       set -ex
       environment=qa
       vagrant nsidc hijack --env=${environment}
       vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
-      #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
-
 
   "%{hiera('project')}_B3_QA_Integration_Tests":
     workspace: "%{hiera('workspace')}/qa"
-    description: Run all tests for the stack on the integration VM.
+    description: Run all tests for the stack on the QA VM.
     command: |
       set -ex
       environment=qa
       vagrant nsidc hijack --env=${environment}
       vagrant nsidc ssh --env=${environment} -c 'return true'
-      #vagrant nsidc ssh --env=${environment} -c 'docker-compose -f docker-compose.test.yml run hermes-test'
-
-
 
   # ============================================================================
   # Release new production/staging machines.
-
 
   "%{hiera('project')}_C1_Provision_Staging_and_Production_VMs":
     git:
@@ -154,8 +139,7 @@ nsidc_jenkins::jobs:
       - type: string
         name: ref
         description: |
-          This is the reference of the hermes-vm project.  It describes the
-          state of the virtual machines to deploy the software onto.
+          The branch of the hermes-vm project to be used to provision the relevant virtual machine.
         default: master
     wrappers:
       - name: build name
@@ -177,7 +161,6 @@ nsidc_jenkins::jobs:
         %{hiera('recreate-vm')}
       done
 
-
   "%{hiera('project')}_C2_Deploy_Production_Stack":
     parameters:
       - type: string
@@ -188,19 +171,15 @@ nsidc_jenkins::jobs:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
     workspace: "%{hiera('workspace')}/production"
-    description: fetch images at specified version and start the docker stack
+    description: Fetch images configured for production and start the docker stack.
     command: |
       set -ex
       environment=production
       vagrant nsidc hijack --env=${environment}
       vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
-      #vagrant nsidc ssh --env=${environment} -c "%{hiera('ops_scripts_dir')}/deploy-stack.sh $ref"
-
-
 
   # ============================================================================
   # Implode
-
 
   "%{hiera('project')}_D_Destroy_PreProduction_VMs":
     git:
