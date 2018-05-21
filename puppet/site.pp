@@ -61,14 +61,14 @@ if $::environment != 'ci' {
     group    => 'vagrant'
   }
 
+  package { 'jq': }
+
   if $environment == 'dev' {
 
     exec { 'setup node':
       command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get install -y nodejs',
       path    => '/usr/bin'
     }
-
-    package { 'jq': }
 
     exec { 'clone all the hermes repos':
       command => 'bash ./scripts/clone-dev.sh',
@@ -145,6 +145,7 @@ if $::environment != 'ci' {
       require => [File["${stackdir}/service-versions.env"],
                   Exec['swarm'],
                   File['envvars'],
+                  Package['jq'],
                   Nsidc_nfs::Sharemount['/share/logs/hermes'],
                   Nsidc_nfs::Sharemount['/share/apps/hermes'],
                   Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
