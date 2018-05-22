@@ -129,7 +129,7 @@ if $::environment != 'ci' {
       tries => 3
     } ->
     exec { 'start hermes-stack':
-      command => '/bin/bash -c "./scripts/start-dev.sh"',
+      command => '/bin/bash -lc "./scripts/start-dev.sh"',
       cwd     => "${stackdir}",
       # sometimes getting a mysterious error from docker-compose build that
       # resolves by simply trying again; finding the root of that problem would be
