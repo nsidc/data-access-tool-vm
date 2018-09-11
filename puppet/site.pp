@@ -36,7 +36,7 @@ nsidc_nfs::sharemount { '/share/logs/hermes':
 }
 
 # Our VMs have an older version of vmware-tools which can cause failure to SSH to machines running docker
-package { 'open-vm-tools' }
+package { 'open-vm-tools': }
 
 if $::environment != 'ci' {
   file { 'rabbitmq-db-dir':
