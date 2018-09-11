@@ -63,8 +63,8 @@ nsidc_jenkins::jobs:
     command: |
       set -ex
       environment=integration
-      vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
+      vagrant nsidc hijack --env=${environment} --force
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
     triggers:
       - jobs:
           - "%{hiera('project')}_A3_Integration_Tests"
@@ -76,8 +76,8 @@ nsidc_jenkins::jobs:
     command: |
       set -ex
       environment=integration
-      vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c 'return true'
+      vagrant nsidc hijack --env=${environment} --force
+      vagrant nsidc ssh --env=${environment} -c "return false"
 
 # QA ==========================================================
 
@@ -115,8 +115,8 @@ nsidc_jenkins::jobs:
     command: |
       set -ex
       environment=qa
-      vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
+      vagrant nsidc hijack --env=${environment} --force
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
 
   "%{hiera('project')}_B3_QA_Integration_Tests":
     workspace: "%{hiera('workspace')}/qa"
@@ -124,8 +124,9 @@ nsidc_jenkins::jobs:
     command: |
       set -ex
       environment=qa
+      rm -rf .vagrant-${environment}
       vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c 'return true'
+      vagrant nsidc ssh --env=${environment} -c "return false"
 
   # ============================================================================
   # Release new production/staging machines.
@@ -175,8 +176,8 @@ nsidc_jenkins::jobs:
     command: |
       set -ex
       environment=production
-      vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "/vagrant/home/hermes/hermes-stack/scripts/deploy.sh"
+      vagrant nsidc hijack --env=${environment} --force
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
 
   # ============================================================================
   # Implode
