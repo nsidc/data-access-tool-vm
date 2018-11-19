@@ -109,7 +109,8 @@ if $::environment != 'ci' {
   cron { 'docker-cleanup':
     command => "${stackdir}/scripts/docker-cleanup.sh",
     user    => 'vagrant',
-    hour    => '*'
+    hour    => '*',
+    minute    => '0',
   }
 
   if $environment == 'dev' {
