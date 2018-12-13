@@ -125,13 +125,14 @@ if $::environment != 'ci' {
       require => Vcsrepo['clone hermes-stack'],
     } ->
     exec { 'build hermes-stack':
-      command => '/bin/bash -c "./scripts/build-dev.sh"',
-      cwd     => "${stackdir}",
-      timeout => 600,
-      require => [Exec['install docker and compose'],
-                  File["${stackdir}/service-versions.env"],
-                  Exec['clone all the hermes repos'],
-                  File['envvars']],
+      command   => '/bin/bash -c "./scripts/build-dev.sh"',
+      cwd       => "${stackdir}",
+      user      => 'vagrant',
+      timeout   => 600,
+      require   => [Exec['install docker and compose'],
+                    File["${stackdir}/service-versions.env"],
+                    Exec['clone all the hermes repos'],
+                    File['envvars']],
       # sometimes getting a mysterious error from docker-compose build that
       # resolves by simply trying again; finding the root of that problem would be
       # better than retrying here
@@ -140,6 +141,7 @@ if $::environment != 'ci' {
     exec { 'start hermes-stack':
       command => '/bin/bash -lc "./scripts/start-dev.sh"',
       cwd     => "${stackdir}",
+      user    => 'vagrant',
       # sometimes getting a mysterious error from docker-compose build that
       # resolves by simply trying again; finding the root of that problem would be
       # better than retrying here
@@ -155,6 +157,7 @@ if $::environment != 'ci' {
   else {
     exec { 'swarm':
       command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
+      user    => 'vagrant',
       path    => ['/usr/bin', '/usr/sbin',],
       require => Exec['install docker and compose'],
     }
@@ -162,6 +165,7 @@ if $::environment != 'ci' {
     exec { 'start hermes-stack':
       command => '/bin/bash -lc "/home/vagrant/hermes/hermes-stack/scripts/deploy.sh"',
       cwd     => "${stackdir}",
+      user    => 'vagrant',
       require => [Exec['install docker and compose'],
                   File["${stackdir}/service-versions.env"],
                   Exec['swarm'],
