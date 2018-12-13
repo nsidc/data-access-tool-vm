@@ -111,8 +111,7 @@ if $::environment != 'ci' {
     ensure  => present,
     mode    => 'u+x',
     require => [Exec['install docker and compose'], Vcsrepo['clone hermes-stack']],
-  }
-  ->
+  } ->
   cron { 'docker-cleanup':
     command => "${stackdir}/scripts/docker-cleanup.sh",
     user    => 'vagrant',
@@ -121,7 +120,7 @@ if $::environment != 'ci' {
   }
 
   if $environment == 'dev' {
-    File { "${stackdir}/docker-compose.override.yml":
+    file { "${stackdir}/docker-compose.override.yml":
       ensure  => link,
       target  => "${stackdir}/docker-compose.dev.yml",
       owner   => vagrant,
@@ -162,8 +161,7 @@ if $::environment != 'ci' {
       user    => 'vagrant',
       path    => ['/usr/bin', '/usr/sbin',],
       require => Exec['install docker and compose'],
-    }
-    ->
+    } ->
     exec { 'start hermes-stack':
       command => '/bin/bash -lc "/home/vagrant/hermes/hermes-stack/scripts/deploy.sh"',
       cwd     => "${stackdir}",
