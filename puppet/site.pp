@@ -47,9 +47,9 @@ if $::environment != 'ci' {
 
   # Because our containers must run as non-root users to write on NFS, we need to pre-chown all volumes
   file { $docker_nfs_volumes:
-    ensure => 'directory',
-    owner  => 'vagrant',
-    group  => 'docker',
+    ensure  => 'directory',
+    owner   => 'vagrant',
+    group   => 'docker',
     require => Nsidc_nfs::Sharemount['/share/logs/hermes', '/share/apps/hermes',],
   } ->
   file { 'envvars':
@@ -116,7 +116,7 @@ if $::environment != 'ci' {
     command => "${stackdir}/scripts/docker-cleanup.sh",
     user    => 'vagrant',
     hour    => '*',
-    minute    => '0',
+    minute  => '0',
   }
 
   if $environment == 'dev' {
@@ -127,18 +127,18 @@ if $::environment != 'ci' {
       require => Vcsrepo['clone hermes-stack'],
     } ->
     exec { 'build hermes-stack':
-      command   => '/bin/bash -c "./scripts/build-dev.sh"',
-      cwd       => "${stackdir}",
-      user      => 'vagrant',
-      timeout   => 600,
-      require   => [Exec['install docker and compose'],
-                    File["${stackdir}/service-versions.env"],
-                    Exec['clone all the hermes repos'],
-                    File['envvars']],
+      command => '/bin/bash -c "./scripts/build-dev.sh"',
+      cwd     => "${stackdir}",
+      user    => 'vagrant',
+      timeout => 600,
+      require => [Exec['install docker and compose'],
+                  File["${stackdir}/service-versions.env"],
+                  Exec['clone all the hermes repos'],
+                  File['envvars']],
       # sometimes getting a mysterious error from docker-compose build that
       # resolves by simply trying again; finding the root of that problem would be
       # better than retrying here
-      tries => 3
+      tries   => 3
     } ->
     exec { 'start hermes-stack':
       command => '/bin/bash -lc "./scripts/start-dev.sh"',
