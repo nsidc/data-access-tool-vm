@@ -11,7 +11,6 @@ nsidc_nfs::sharemounts:
     share: packages
 
 nsidc_jenkins::plugins:
-  simple-theme-plugin: {}
   parameterized-trigger:
     version: 2.25
 
@@ -64,6 +63,7 @@ nsidc_jenkins::jobs:
       set -ex
       environment=integration
       vagrant nsidc hijack --env=${environment} --force
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch && git checkout ${ref} && git pull"
       vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
     triggers:
       - jobs:
