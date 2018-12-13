@@ -35,6 +35,10 @@ nsidc_nfs::sharemount { '/share/logs/hermes':
   share   => "hermes/${nfs_share_postfix}",
 }
 
+exec { 'install docker and compose':
+  command => '/vagrant/puppet/scripts/install-docker.sh',
+}
+
 # Our VMs have an older version of vmware-tools which can cause failure to SSH to machines running docker
 package { 'open-vm-tools': }
 
@@ -103,7 +107,7 @@ if $::environment != 'ci' {
   file { "${stackdir}/scripts/docker-cleanup.sh":
     ensure  => present,
     mode    => 'u+x',
-    require => Vcsrepo['clone hermes-stack'],
+    require => [Exec['install docker and compose'], Vcsrepo['clone hermes-stack']],
   }
   ->
   cron { 'docker-cleanup':
@@ -124,7 +128,8 @@ if $::environment != 'ci' {
       command => '/bin/bash -c "./scripts/build-dev.sh"',
       cwd     => "${stackdir}",
       timeout => 600,
-      require => [File["${stackdir}/service-versions.env"],
+      require => [Exec['install docker and compose'],
+                  File["${stackdir}/service-versions.env"],
                   Exec['clone all the hermes repos'],
                   File['envvars']],
       # sometimes getting a mysterious error from docker-compose build that
@@ -139,18 +144,26 @@ if $::environment != 'ci' {
       # resolves by simply trying again; finding the root of that problem would be
       # better than retrying here
       tries   => 3,
+      require => [Exec['install docker and compose'],
+                  File['envvars'],
+                  Package['jq'],
+                  Nsidc_nfs::Sharemount['/share/logs/hermes'],
+                  Nsidc_nfs::Sharemount['/share/apps/hermes'],
+                  Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
     }
   }
   else {
     exec { 'swarm':
       command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
-      path    => ['/usr/bin', '/usr/sbin',]
+      path    => ['/usr/bin', '/usr/sbin',],
+      require => Exec['install docker and compose'],
     }
     ->
     exec { 'start hermes-stack':
       command => '/bin/bash -lc "/home/vagrant/hermes/hermes-stack/scripts/deploy.sh"',
       cwd     => "${stackdir}",
-      require => [File["${stackdir}/service-versions.env"],
+      require => [Exec['install docker and compose'],
+                  File["${stackdir}/service-versions.env"],
                   Exec['swarm'],
                   File['envvars'],
                   Package['jq'],
