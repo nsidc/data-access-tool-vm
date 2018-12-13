@@ -23,6 +23,9 @@ sudo add-apt-repository \
 sudo apt-get update
 sudo apt-get install -y docker-ce=$DOCKER_VERSION
 
+# Avoid using sudo for docker commands
+sudo usermod -aG docker vagrant
+
 ######################
 # docker-compose
 ######################
