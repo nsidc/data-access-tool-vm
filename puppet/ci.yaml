@@ -77,7 +77,7 @@ nsidc_jenkins::jobs:
       set -ex
       environment=integration
       vagrant nsidc hijack --env=${environment} --force
-      vagrant nsidc ssh --env=${environment} -c "return false"
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./integration-test/run_integration_tests.sh local"
 
 # QA ==========================================================
 
@@ -126,7 +126,7 @@ nsidc_jenkins::jobs:
       environment=qa
       rm -rf .vagrant-${environment}
       vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "return false"
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./integration-test/run_integration_tests.sh local"
 
   # ============================================================================
   # Release new production/staging machines.
