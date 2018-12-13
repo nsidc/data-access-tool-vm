@@ -4,6 +4,7 @@
 ######################
 # docker
 ######################
+DOCKER_VERSION="18.06.1~ce~3-0~ubuntu"
 
 sudo apt-get update
 sudo apt-get install -y\
@@ -20,11 +21,12 @@ sudo add-apt-repository \
    stable"
 
 sudo apt-get update
-sudo apt-get install -y docker-ce=18.06.1~ce~3-0~ubuntu
+sudo apt-get install -y docker-ce=$DOCKER_VERSION
 
 ######################
 # docker-compose
 ######################
+COMPOSE_VERSION="1.23.1"
 
-sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
