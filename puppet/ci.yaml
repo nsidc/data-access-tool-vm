@@ -63,7 +63,8 @@ nsidc_jenkins::jobs:
       set -ex
       environment=integration
       vagrant nsidc hijack --env=${environment} --force
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch && git checkout ${ref} && git pull"
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch && git checkout ${ref}"
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git pull || /bin/true"
       vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
     triggers:
       - jobs:
@@ -116,6 +117,8 @@ nsidc_jenkins::jobs:
       set -ex
       environment=qa
       vagrant nsidc hijack --env=${environment} --force
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch && git checkout ${ref}"
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git pull || /bin/true"
       vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
 
   "%{hiera('project')}_B3_QA_Integration_Tests":
