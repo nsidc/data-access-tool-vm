@@ -2,6 +2,8 @@
 lookup('classes', {merge => unique}).include
 
 $stackdir = '/home/vagrant/hermes/hermes-stack'
+$docker_nfs_volumes = ['/share/apps/hermes/rabbitmq', '/share/logs/hermes/api',
+  '/share/logs/hermes/notification', '/share/logs/hermes/webserver', '/share/logs/hermes/workers',]
 
 if $::environment == 'dev' {
   $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
@@ -39,12 +41,17 @@ nsidc_nfs::sharemount { '/share/logs/hermes':
 package { 'open-vm-tools': }
 
 if $::environment != 'ci' {
-  file { 'rabbitmq-db-dir':
-    path   => "/share/apps/hermes/rabbitmq",
-    ensure => "directory",
-    require => Nsidc_nfs::Sharemount['/share/apps/hermes']
+  exec { 'install docker and compose':
+    command => '/vagrant/puppet/scripts/install-docker.sh',
   }
-  ->
+
+  # Because our containers must run as non-root users to write on NFS, we need to pre-chown all volumes
+  file { $docker_nfs_volumes:
+    ensure  => 'directory',
+    owner   => 'vagrant',
+    group   => 'docker',
+    require => Nsidc_nfs::Sharemount['/share/logs/hermes', '/share/apps/hermes',],
+  } ->
   file { 'envvars':
     ensure  => file,
     content => vault_template('/vagrant/puppet/templates/hermes.erb'),
@@ -103,18 +110,17 @@ if $::environment != 'ci' {
   file { "${stackdir}/scripts/docker-cleanup.sh":
     ensure  => present,
     mode    => 'u+x',
-    require => Vcsrepo['clone hermes-stack'],
-  }
-  ->
+    require => [Exec['install docker and compose'], Vcsrepo['clone hermes-stack']],
+  } ->
   cron { 'docker-cleanup':
     command => "${stackdir}/scripts/docker-cleanup.sh",
     user    => 'vagrant',
     hour    => '*',
-    minute    => '0',
+    minute  => '0',
   }
 
   if $environment == 'dev' {
-    File { "${stackdir}/docker-compose.override.yml":
+    file { "${stackdir}/docker-compose.override.yml":
       ensure  => link,
       target  => "${stackdir}/docker-compose.dev.yml",
       owner   => vagrant,
@@ -123,39 +129,49 @@ if $::environment != 'ci' {
     exec { 'build hermes-stack':
       command => '/bin/bash -c "./scripts/build-dev.sh"',
       cwd     => "${stackdir}",
+      user    => 'vagrant',
       timeout => 600,
-      require => [File["${stackdir}/service-versions.env"],
+      require => [Exec['install docker and compose'],
+                  File["${stackdir}/service-versions.env"],
                   Exec['clone all the hermes repos'],
                   File['envvars']],
       # sometimes getting a mysterious error from docker-compose build that
       # resolves by simply trying again; finding the root of that problem would be
       # better than retrying here
-      tries => 3
+      tries   => 3
     } ->
     exec { 'start hermes-stack':
       command => '/bin/bash -lc "./scripts/start-dev.sh"',
       cwd     => "${stackdir}",
+      user    => 'vagrant',
       # sometimes getting a mysterious error from docker-compose build that
       # resolves by simply trying again; finding the root of that problem would be
       # better than retrying here
       tries   => 3,
+      require => [Exec['install docker and compose'],
+                  File['envvars'],
+                  Package['jq'],
+                  File[$docker_nfs_volumes],
+                  Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
     }
   }
   else {
     exec { 'swarm':
       command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
-      path    => ['/usr/bin', '/usr/sbin',]
-    }
-    ->
+      user    => 'vagrant',
+      path    => ['/usr/bin', '/usr/sbin',],
+      require => Exec['install docker and compose'],
+    } ->
     exec { 'start hermes-stack':
       command => '/bin/bash -lc "/home/vagrant/hermes/hermes-stack/scripts/deploy.sh"',
       cwd     => "${stackdir}",
-      require => [File["${stackdir}/service-versions.env"],
+      user    => 'vagrant',
+      require => [Exec['install docker and compose'],
+                  File["${stackdir}/service-versions.env"],
                   Exec['swarm'],
                   File['envvars'],
                   Package['jq'],
-                  Nsidc_nfs::Sharemount['/share/logs/hermes'],
-                  Nsidc_nfs::Sharemount['/share/apps/hermes'],
+                  File[$docker_nfs_volumes],
                   Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
     }
   }
