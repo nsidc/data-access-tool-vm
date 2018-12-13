@@ -2,6 +2,8 @@
 lookup('classes', {merge => unique}).include
 
 $stackdir = '/home/vagrant/hermes/hermes-stack'
+$docker_nfs_volumes = ['/share/apps/hermes/rabbitmq', '/share/logs/hermes/api',
+  '/share/logs/hermes/notification', '/share/logs/hermes/webserver', '/share/logs/hermes/workers',]
 
 if $::environment == 'dev' {
   $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
@@ -35,20 +37,21 @@ nsidc_nfs::sharemount { '/share/logs/hermes':
   share   => "hermes/${nfs_share_postfix}",
 }
 
-exec { 'install docker and compose':
-  command => '/vagrant/puppet/scripts/install-docker.sh',
-}
-
 # Our VMs have an older version of vmware-tools which can cause failure to SSH to machines running docker
 package { 'open-vm-tools': }
 
 if $::environment != 'ci' {
-  file { 'rabbitmq-db-dir':
-    path   => "/share/apps/hermes/rabbitmq",
-    ensure => "directory",
-    require => Nsidc_nfs::Sharemount['/share/apps/hermes']
+  exec { 'install docker and compose':
+    command => '/vagrant/puppet/scripts/install-docker.sh',
   }
-  ->
+
+  # Because our containers must run as non-root users to write on NFS, we need to pre-chown all volumes
+  file { $docker_nfs_volumes:
+    ensure => 'directory',
+    owner  => 'vagrant',
+    group  => 'docker',
+    require => Nsidc_nfs::Sharemount['/share/logs/hermes', '/share/apps/hermes',],
+  } ->
   file { 'envvars':
     ensure  => file,
     content => vault_template('/vagrant/puppet/templates/hermes.erb'),
@@ -149,8 +152,7 @@ if $::environment != 'ci' {
       require => [Exec['install docker and compose'],
                   File['envvars'],
                   Package['jq'],
-                  Nsidc_nfs::Sharemount['/share/logs/hermes'],
-                  Nsidc_nfs::Sharemount['/share/apps/hermes'],
+                  File[$docker_nfs_volumes],
                   Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
     }
   }
@@ -171,8 +173,7 @@ if $::environment != 'ci' {
                   Exec['swarm'],
                   File['envvars'],
                   Package['jq'],
-                  Nsidc_nfs::Sharemount['/share/logs/hermes'],
-                  Nsidc_nfs::Sharemount['/share/apps/hermes'],
+                  File[$docker_nfs_volumes],
                   Nsidc_nfs::Sharemount['/share/apps/hermes-orders']]
     }
   }
