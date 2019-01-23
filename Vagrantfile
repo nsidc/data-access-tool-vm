@@ -1,5 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+require 'vagrant-nsidc/plugin'
 
 Vagrant.configure(2) do |config|
   config.vm.provider :vsphere do |vsphere|
