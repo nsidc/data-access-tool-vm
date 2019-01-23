@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
   config.vm.provider :vsphere do |vsphere|
-    vsphere.memory_mb = 8192
+    vsphere.memory_mb = 1024 * 32
     vsphere.cpu_count = 4
   end
 
