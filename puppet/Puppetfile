@@ -6,7 +6,7 @@ mod "puppetlabs/vcsrepo"
 # Module for creating NSIDC Jenkins servers
 mod "nsidc/nsidc_jenkins",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-jenkins.git",
-  :ref => "v3.0.0"
+  :ref => "v3.0.2"
 
 mod "nsidc/nsidc_nfs",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-nfs.git",
