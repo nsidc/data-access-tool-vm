@@ -8,9 +8,9 @@ export GOOGLE_CLIENT_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secret/d
 export DROPBOX_CONSUMER_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/dropbox', 'consumer_key') %>'
 export DROPBOX_CONSUMER_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/dropbox', 'consumer_secret') %>'
 
-export DB_CONTAINERHOST=<%= @db_host %>
+export DB_CONTAINERHOST='<%= @db_host %>'
 export DB_PORT=27017
 
-export HERMES_OPS_EMAILS=<%= @ops_emails %>
+export HERMES_OPS_EMAILS='<%= @ops_emails %>'
 
-export NSIDC_ENVIRONMENT=<%= @environment %>
+export NSIDC_ENVIRONMENT='<%= @environment %>'
