@@ -1,9 +1,16 @@
 export EARTHDATA_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/earthdata', 'username') %>'
 export EARTHDATA_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/earthdata', 'password') %>'
+
 export GOOGLE_API_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'api_key') %>'
 export GOOGLE_CLIENT_ID='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'client_id') %>'
 export GOOGLE_CLIENT_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'client_secret') %>'
+
 export DROPBOX_CONSUMER_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/dropbox', 'consumer_key') %>'
 export DROPBOX_CONSUMER_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/dropbox', 'consumer_secret') %>'
-export DB_CONTAINERHOST=<%= @db_host %>
+
+export DB_CONTAINERHOST='<%= @db_host %>'
 export DB_PORT=27017
+
+export HERMES_OPS_EMAILS='<%= @ops_emails %>'
+
+export NSIDC_ENVIRONMENT='<%= @environment %>'
