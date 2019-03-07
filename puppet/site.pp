@@ -16,8 +16,7 @@ $db_host = $::environment ? {
 }
 $ops_emails = $::environment ? {
   'production' => 'ops@nsidc.org',
-  'staging'    => 'ops@nsidc.org',
-  'qa'         => 'ops@nsidc.org,stephanie.heacox@nsidc.org',
+  'qa'         => 'stephanie.heacox@nsidc.org',
   default      => '',
 }
 
