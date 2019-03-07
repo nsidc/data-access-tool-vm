@@ -1,4 +1,4 @@
-project: hermes
+project: hermes2
 gitrepo: git@bitbucket.org:nsidc/hermes-vm.git
 vsphere:
   template:
