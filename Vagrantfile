@@ -4,7 +4,7 @@ require 'vagrant-nsidc/plugin'
 
 Vagrant.configure(2) do |config|
   config.vm.provider :vsphere do |vsphere|
-    vsphere.memory_mb = 1024 * 32
+    vsphere.memory_mb = 1024 * 16
     vsphere.cpu_count = 4
   end
 
