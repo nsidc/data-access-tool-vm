@@ -10,9 +10,9 @@ if $::environment == 'dev' {
 }
 
 $db_host = $::environment ? {
-  'dev'        => "dev.hermes-db.${dev_name}.dev.int.nsidc.org",
-  'production' => "hermes-db.apps.int.nsidc.org",
-  default      => "${::environment}.hermes-db.apps.int.nsidc.org",
+  'dev'        => "dev.hermes2-db.${dev_name}.dev.int.nsidc.org",
+  'production' => "hermes2-db.apps.int.nsidc.org",
+  default      => "${::environment}.hermes2-db.apps.int.nsidc.org",
 }
 $ops_emails = $::environment ? {
   'production' => 'ops@nsidc.org',
