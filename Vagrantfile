@@ -2,9 +2,13 @@
 # vi: set ft=ruby :
 require 'vagrant-nsidc/plugin'
 
+environment = VagrantPlugins::NSIDC::Plugin.environment
+
 Vagrant.configure(2) do |config|
+  memory_gb = ['staging', 'production'].include?(environment) ? 16 : 8
+
   config.vm.provider :vsphere do |vsphere|
-    vsphere.memory_mb = 1024 * 16
+    vsphere.memory_mb = 1024 * memory_gb
     vsphere.cpu_count = 4
   end
 
@@ -23,7 +27,7 @@ Vagrant.configure(2) do |config|
     puppet.manifests_path = './puppet'
     puppet.manifest_file = 'site.pp'
     puppet.options = '--debug --detailed-exitcodes --modulepath ./puppet/modules'
-    puppet.environment = VagrantPlugins::NSIDC::Plugin.environment
+    puppet.environment = environment
     puppet.environment_path = './puppet/environments'
     puppet.hiera_config_path = './puppet/hiera.yaml'
   end
