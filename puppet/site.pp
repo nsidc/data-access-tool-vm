@@ -9,6 +9,11 @@ if $::environment == 'dev' {
   $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
 }
 
+$esi_environment = $::environment ? {
+  'staging' => 'uat',
+  default   => 'prod',
+}
+
 $db_host = $::environment ? {
   'dev'        => "dev.hermes2-db.${dev_name}.dev.int.nsidc.org",
   'production' => "hermes2-db.apps.int.nsidc.org",
