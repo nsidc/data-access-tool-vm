@@ -11,7 +11,7 @@ export DROPBOX_CONSUMER_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secre
 export DB_CONTAINERHOST='<%= @db_host %>'
 export DB_PORT=27017
 export POSTGRES_USER='postgres'
-export POSTGRES_PASSWORD='password'
+export POSTGRES_PASSWORD='password'  # TODO: Secret
 export POSTGRES_HOST='db2'
 
 export HERMES_OPS_EMAILS='<%= @ops_emails %>'
