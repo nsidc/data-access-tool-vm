@@ -9,10 +9,10 @@ export DROPBOX_CONSUMER_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/d
 export DROPBOX_CONSUMER_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/dropbox', 'consumer_secret') %>'
 
 export DB_CONTAINERHOST='<%= @db_host %>'
-export DB_PORT=27017
-export POSTGRES_USER='postgres'
-export POSTGRES_PASSWORD='password'  # TODO: Secret
-export POSTGRES_HOST='db2'
+export DB_PORT=5432
+export DB_USER='postgres'
+export DB_PASSWORD='password'  # TODO: Secret
+export DB_HOST='db2'
 
 export HERMES_OPS_EMAILS='<%= @ops_emails %>'
 
