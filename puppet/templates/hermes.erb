@@ -10,8 +10,8 @@ export DROPBOX_CONSUMER_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secre
 
 export DB_CONTAINERHOST='<%= @db_host %>'
 export DB_PORT=5432
-export DB_USER='hermes'
-export DB_PASSWORD='password'  # TODO: Secret
+export DB_USER='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/db', 'app_user') %>'
+export DB_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/db', 'app_password') %>'
 
 export HERMES_HOST='<%= @cname %>'
 
