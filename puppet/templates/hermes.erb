@@ -4,6 +4,7 @@ export EARTHDATA_GENERIC_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'se
 export EARTHDATA_GENERIC_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/earthdata', 'password') %>'
 export EARTHDATA_APP_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/everest/earthdata', 'username') %>'
 export EARTHDATA_APP_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/everest/earthdata', 'password') %>'
+export EARTHDATA_APP_CLIENT_ID='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/everest/earthdata', 'client_id') %>'
 
 export GOOGLE_API_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'api_key') %>'
 export GOOGLE_CLIENT_ID='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'client_id') %>'
