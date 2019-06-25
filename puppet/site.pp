@@ -79,6 +79,14 @@ if $::environment != 'ci' {
     source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
     owner    => 'vagrant',
     group    => 'vagrant'
+  } ->
+  vcsrepo { 'clone hermes-api':
+    ensure   => present,
+    path     => '/home/vagrant/hermes/hermes-api',
+    provider => git,
+    source   => 'git@bitbucket.org:nsidc/hermes-api.git',
+    owner    => 'vagrant',
+    group    => 'vagrant'
   }
 
   package { 'jq': }
