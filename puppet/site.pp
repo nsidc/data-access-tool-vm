@@ -148,7 +148,7 @@ if $::environment != 'ci' {
       command => '/bin/bash -c "./scripts/build-dev.sh"',
       cwd     => "${stackdir}",
       user    => 'vagrant',
-      timeout => 600,
+      timeout => 1000,
       require => [Exec['install docker and compose'],
                   File["${stackdir}/service-versions.env"],
                   Exec['clone all the hermes repos'],
