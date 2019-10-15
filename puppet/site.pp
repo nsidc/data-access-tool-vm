@@ -19,6 +19,11 @@ $db_host = $::environment ? {
   'production' => "hermes2-db.apps.int.nsidc.org",
   default      => "${::environment}.hermes2-db.apps.int.nsidc.org",
 }
+$icebridge_db_host = $::environment ? {
+  'dev'        => "dev.icebridge-portal.${dev_name}.dev.int.nsidc.org",
+  'production' => "icebridge-db.apps.int.nsidc.org",
+  default      => "${::environment}.icebridge-db.apps.int.nsidc.org",
+}
 $ops_emails = $::environment ? {
   'production' => 'ops@nsidc.org',
   'qa'         => 'stephanie.heacox@nsidc.org',
@@ -148,7 +153,7 @@ if $::environment != 'ci' {
       command => '/bin/bash -c "./scripts/build-dev.sh"',
       cwd     => "${stackdir}",
       user    => 'vagrant',
-      timeout => 600,
+      timeout => 1000,
       require => [Exec['install docker and compose'],
                   File["${stackdir}/service-versions.env"],
                   Exec['clone all the hermes repos'],
