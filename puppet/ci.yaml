@@ -180,7 +180,7 @@ nsidc_jenkins::jobs:
       set -ex
       environment=production
       vagrant nsidc hijack --env=${environment} --force
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
+      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch --all --tags && git checkout $ref && ./scripts/deploy.sh"
 
   # ============================================================================
   # Implode
