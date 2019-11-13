@@ -39,7 +39,7 @@ $nfs_share_postfix = $::environment ? {
 nsidc_nfs::sharemount { '/share/apps/hermes':
   options => 'rw',
   project => 'apps',
-  share   => "hermes/__2__/${nfs_share_postfix}",
+  share   => "hermes/${nfs_share_postfix}",
 }
 nsidc_nfs::sharemount { '/share/apps/hermes-orders':
   options => 'rw',
@@ -49,7 +49,7 @@ nsidc_nfs::sharemount { '/share/apps/hermes-orders':
 nsidc_nfs::sharemount { '/share/logs/hermes':
   options => 'rw',
   project => 'logs',
-  share   => "hermes/__2__/${nfs_share_postfix}",
+  share   => "hermes/${nfs_share_postfix}",
 }
 
 # Our VMs have an older version of vmware-tools which can cause failure to SSH to machines running docker
