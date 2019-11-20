@@ -179,6 +179,12 @@ if $::environment != 'ci' {
     }
   }
   else {
+    file { "${stackdir}/docker-compose.override.yml":
+      ensure  => link,
+      target  => "${stackdir}/docker-compose.prod.yml",
+      owner   => vagrant,
+      require => Vcsrepo['clone hermes-stack'],
+    } ->
     exec { 'swarm':
       command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
       user    => 'vagrant',
