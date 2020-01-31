@@ -20,6 +20,10 @@ export DB_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes
 
 export HERMES_HOST='<%= @cname %>'
 
+export HERMES_FLASK_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/dev/hermes', 'flask_secret_key') %>'
+export HERMES_JWT_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/dev/hermes', 'jwt_secret_key') %>'
+export HERMES_API_ACCESS_TOKEN_WORKERS='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/dev/hermes', 'api_access_token_workers') %>'
+
 export HERMES_OPS_EMAILS='<%= @ops_emails %>'
 
 export NSIDC_ENVIRONMENT='<%= @environment %>'
