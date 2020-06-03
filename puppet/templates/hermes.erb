@@ -1,28 +1,28 @@
 # The generic user is used for fetching data or submitting orders. The app user
 # is used for fetching EDL profiles of authorized users.
-export EARTHDATA_GENERIC_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/earthdata', 'username') %>'
-export EARTHDATA_GENERIC_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/earthdata', 'password') %>'
-export EARTHDATA_APP_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/everest/earthdata', 'username') %>'
-export EARTHDATA_APP_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/everest/earthdata', 'password') %>'
-export EARTHDATA_APP_CLIENT_ID='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/everest/earthdata', 'client_id') %>'
+export EARTHDATA_GENERIC_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/earthdata', 'username') %>'
+export EARTHDATA_GENERIC_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/earthdata', 'password') %>'
+export EARTHDATA_APP_USERNAME='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/everest/earthdata', 'username') %>'
+export EARTHDATA_APP_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/everest/earthdata', 'password') %>'
+export EARTHDATA_APP_CLIENT_ID='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/everest/earthdata', 'client_id') %>'
 
-export GOOGLE_API_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'api_key') %>'
-export GOOGLE_CLIENT_ID='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'client_id') %>'
-export GOOGLE_CLIENT_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/google', 'client_secret') %>'
+export GOOGLE_API_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/google', 'api_key') %>'
+export GOOGLE_CLIENT_ID='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/google', 'client_id') %>'
+export GOOGLE_CLIENT_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/google', 'client_secret') %>'
 
-export DROPBOX_CONSUMER_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/dropbox', 'consumer_key') %>'
-export DROPBOX_CONSUMER_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/dropbox', 'consumer_secret') %>'
+export DROPBOX_CONSUMER_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/dropbox', 'consumer_key') %>'
+export DROPBOX_CONSUMER_SECRET='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/dropbox', 'consumer_secret') %>'
 
 export DB_CONTAINERHOST='<%= @db_host %>'
 export DB_PORT=5432
-export DB_USER='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/db', 'app_user') %>'
-export DB_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'secret/dev/hermes/db', 'app_password') %>'
+export DB_USER='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/db', 'app_user') %>'
+export DB_PASSWORD='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/db', 'app_password') %>'
 
 export HERMES_HOST='<%= @cname %>'
 
-export HERMES_FLASK_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/dev/hermes', 'flask_secret_key') %>'
-export HERMES_JWT_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/dev/hermes', 'jwt_secret_key') %>'
-export HERMES_API_ACCESS_TOKEN_WORKERS='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/dev/hermes', 'api_access_token_workers') %>'
+export HERMES_FLASK_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/app', 'flask_secret_key') %>'
+export HERMES_JWT_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/app', 'jwt_secret_key') %>'
+export HERMES_API_ACCESS_TOKEN_WORKERS='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/hermes/app', 'api_access_token_workers') %>'
 
 export HERMES_OPS_EMAILS='<%= @ops_emails %>'
 

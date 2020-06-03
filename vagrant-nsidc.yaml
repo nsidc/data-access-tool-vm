@@ -1,8 +1,4 @@
-# TODO: Change project name back to "hermes"
-# The project name was changed to "hermes2" so that we could run two parallel
-# hermes systems while doing major API changes. Hermes API is now on version 6,
-# and the "2" has no meaning.
-project: hermes2
+project: hermes
 gitrepo: git@bitbucket.org:nsidc/hermes-vm.git
 vsphere:
   template:

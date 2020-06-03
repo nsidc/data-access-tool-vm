@@ -15,9 +15,9 @@ $esi_environment = $::environment ? {
 }
 
 $db_host = $::environment ? {
-  'dev'        => "dev.hermes2-db.${dev_name}.dev.int.nsidc.org",
-  'production' => "hermes2-db.apps.int.nsidc.org",
-  default      => "${::environment}.hermes2-db.apps.int.nsidc.org",
+  'dev'        => "dev.hermes-db.${dev_name}.dev.int.nsidc.org",
+  'production' => "hermes-db.apps.int.nsidc.org",
+  default      => "${::environment}.hermes-db.apps.int.nsidc.org",
 }
 $icebridge_db_host = $::environment ? {
   'dev'        => "dev.icebridge-portal.${dev_name}.dev.int.nsidc.org",
