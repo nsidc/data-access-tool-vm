@@ -55,7 +55,23 @@ nsidc_nfs::sharemount { '/share/logs/hermes':
 # Our VMs have an older version of vmware-tools which can cause failure to SSH to machines running docker
 package { 'open-vm-tools': }
 
-if $::environment != 'ci' {
+if $::environment == 'ci' {
+  vcsrepo { 'clone garrison':
+    ensure   => present,
+    path     => '/opt/garrison',
+    provider => git,
+    source   => 'git@bitbucket.org:nsidc/garrison.git',
+    revision => 'hermes-no-two',  # TODO: Update tag from branch name to v0.2.0
+    owner    => 'vagrant',
+    group    => 'vagrant',
+  } ->
+  file { 'add garrison to PATH':
+    ensure => link,
+    path   => '/bin/garrison',
+    target => '/opt/garrison/garrison.sh',
+  }
+
+} else {
   exec { 'install docker and compose':
     command => '/vagrant/puppet/scripts/install-docker.sh',
   }
