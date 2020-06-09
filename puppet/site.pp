@@ -9,6 +9,8 @@ if $::environment == 'dev' {
   $dev_name = chomp(generate('/bin/sed', 's/^dev\.[^.]*\.\([^.]*\).*$/\1/', '/etc/fqdn'))
 }
 
+# Operations team prefers to have staging configured for UAT for pre-warning of
+# changes before they hit prod.
 $esi_environment = $::environment ? {
   'staging' => 'uat',
   default   => 'prod',
