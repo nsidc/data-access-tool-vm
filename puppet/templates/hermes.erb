@@ -27,6 +27,6 @@ export HERMES_API_ACCESS_TOKEN_WORKERS='<%= vault_get('vault.apps.int.nsidc.org'
 export HERMES_OPS_EMAILS='<%= @ops_emails %>'
 
 export NSIDC_ENVIRONMENT='<%= @environment %>'
-export ESI_ENVIRONMENT='<%= @esi_environment %>'
+export ESI_ENVIRONMENT='prod'  # Change to 'uat' if you need to test (e.g. ESI new features or bug fixes) in UAT
 
 export ICEBRIDGE_DB_HOST='<%= @icebridge_db_host %>'
