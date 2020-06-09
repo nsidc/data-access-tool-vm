@@ -52,8 +52,12 @@ nsidc_jenkins::jobs:
     parameters:
       - type: string
         name: ref
-        description: hermes-stack project''s git ref (branch, tag, commit SHA) to check out and deploy
+        description: hermes-stack project''s git ref (branch, tag, commit SHA) to check out and deploy.
         default: master
+      - type: string
+        name: deploy_version
+        description: Apply the pre/post deploy actions for this version. When left blank, $ref will be used (usually resulting in no actions).
+        default: ''
     wrappers:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
@@ -61,11 +65,13 @@ nsidc_jenkins::jobs:
     description: Fetch latest images and start the docker stack.
     command: |
       set -ex
-      environment=integration
-      vagrant nsidc hijack --env=${environment} --force
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch && git checkout ${ref}"
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git pull || /bin/true"
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
+      cmd="garrison -p hermes -r $ref -e integration"
+
+      if [ ! -z "$deploy_version" ]; then
+        cmd="${cmd} -D ${deploy_version}"
+      fi
+
+      $cmd
     triggers:
       - jobs:
           - "%{hiera('project')}_A3_Integration_Tests"
@@ -107,7 +113,7 @@ nsidc_jenkins::jobs:
       - type: string
         name: ref
         description: hermes-stack project''s git ref (branch, tag, commit SHA) to check out and deploy
-        default: master
+        default: vX.Y.Z
     wrappers:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
@@ -115,15 +121,11 @@ nsidc_jenkins::jobs:
     description: Fetch images configured for production version and start the docker stack.
     command: |
       set -ex
-      environment=qa
-      vagrant nsidc hijack --env=${environment} --force
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch && git checkout ${ref}"
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git pull || /bin/true"
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./scripts/deploy.sh"
+      garrison -p hermes -r $ref -e qa
 
   "%{hiera('project')}_B3_QA_Integration_Tests":
     workspace: "%{hiera('workspace')}/qa"
-    description: Run all tests for the stack on the QA VM.
+    description: Run all tests for the stack on the QA VM. CURRENTLY BROKEN!!!
     command: |
       set -ex
       environment=qa
@@ -134,7 +136,7 @@ nsidc_jenkins::jobs:
   # ============================================================================
   # Release new production/staging machines.
 
-  "%{hiera('project')}_C1_Provision_Staging_and_Production_VMs":
+  "%{hiera('project')}_C1_Provision_Staging_and_Blue_VMs":
     git:
       repo: "%{hiera('gitrepo')}"
       poll_scm: false
@@ -148,7 +150,7 @@ nsidc_jenkins::jobs:
     wrappers:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
-    workspace: "%{hiera('workspace')}/production"
+    workspace: "%{hiera('workspace')}/release"
     description: |
       Job to create production and staging machines for deployment to live site.
 
@@ -165,22 +167,22 @@ nsidc_jenkins::jobs:
         %{hiera('recreate-vm')}
       done
 
-  "%{hiera('project')}_C2_Deploy_Production_Stack":
+  "%{hiera('project')}_C2_Deploy_Staging_Stack":
     parameters:
       - type: string
         name: ref
         description: hermes-stack project''s git ref (branch, tag, commit SHA) to check out and deploy
-        default: master
+        default: vX.Y.Z
     wrappers:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
-    workspace: "%{hiera('workspace')}/production"
-    description: Fetch images configured for production and start the docker stack.
+    workspace: "%{hiera('workspace')}/release"
+    description: |
+      Fetch images configured for staging and start the docker stack. Use
+      Ops Jenkins to deploy Production stack.
     command: |
       set -ex
-      environment=production
-      vagrant nsidc hijack --env=${environment} --force
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && git fetch --all --tags && git checkout $ref && ./scripts/deploy.sh"
+      garrison -p hermes -r $ref -e staging
 
   # ============================================================================
   # Implode
