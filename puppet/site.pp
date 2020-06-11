@@ -21,11 +21,6 @@ $db_host = $::environment ? {
   'production' => "hermes-db.apps.int.nsidc.org",
   default      => "${::environment}.hermes-db.apps.int.nsidc.org",
 }
-$icebridge_db_host = $::environment ? {
-  'dev'        => "dev.icebridge-portal.${dev_name}.dev.int.nsidc.org",
-  'production' => "icebridge-db.apps.int.nsidc.org",
-  default      => "${::environment}.icebridge-db.apps.int.nsidc.org",
-}
 $ops_emails = $::environment ? {
   'production' => 'ops@nsidc.org',
   'qa'         => 'stephanie.heacox@nsidc.org',
