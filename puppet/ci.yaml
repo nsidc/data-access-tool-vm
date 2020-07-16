@@ -24,7 +24,7 @@ recreate-vm: |
 # Jenkins Jobs
 nsidc_jenkins::jobs:
 
-  "%{hiera('project')}_A1_Provision_Integration_VM":
+  "%{hiera('project')}_A1_Recreate_Integration_VM":
     git:
       repo: "%{hiera('gitrepo')}"
       poll_scm: true
@@ -37,7 +37,7 @@ nsidc_jenkins::jobs:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
     workspace: "%{hiera('workspace')}/integration"
-    description: Hijack and provision the VM for Integration environment
+    description: Hijack and recreate the VM for Integration environment
     command: |
       set -ex
       environment=integration
@@ -88,7 +88,7 @@ nsidc_jenkins::jobs:
 
 # QA ==========================================================
 
-  "%{hiera('project')}_B1_Provision_QA_VM":
+  "%{hiera('project')}_B1_Recreate_QA_VM":
     git:
       repo: "%{hiera('gitrepo')}"
       poll_scm: false
@@ -101,7 +101,7 @@ nsidc_jenkins::jobs:
       - name: build name
         template: "#${BUILD_NUMBER} ${ref}"
     workspace: "%{hiera('workspace')}/qa"
-    description: Hijack and provision the VM for QA environment
+    description: Hijack and recreate the VM for QA environment
     command: |
       set -ex
       environment=qa
@@ -136,7 +136,7 @@ nsidc_jenkins::jobs:
   # ============================================================================
   # Release new production/staging machines.
 
-  "%{hiera('project')}_C1_Provision_Staging_and_Blue_VMs":
+  "%{hiera('project')}_C1_Create_Staging_and_Blue_VMs":
     git:
       repo: "%{hiera('gitrepo')}"
       poll_scm: false
