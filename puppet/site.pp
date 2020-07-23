@@ -58,7 +58,7 @@ if $::environment == 'ci' {
     path     => '/opt/garrison',
     provider => git,
     source   => 'git@bitbucket.org:nsidc/garrison.git',
-    revision => 'hermes-no-two',  # TODO: Update tag from branch name to v0.2.0
+    revision => 'v0.2.0',
     owner    => 'vagrant',
     group    => 'vagrant',
   } ->
