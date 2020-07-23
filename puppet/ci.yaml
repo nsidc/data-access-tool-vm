@@ -45,7 +45,7 @@ nsidc_jenkins::jobs:
       %{hiera('recreate-vm')}
     triggers:
       - jobs:
-          - "%{hiera('project')}_A3_Integration_Tests"
+          - "%{hiera('project')}_A2_Deploy_Integration_Stack_Latest"
         without_parameters: true
 
   "%{hiera('project')}_A2_Deploy_Integration_Stack_Latest":
