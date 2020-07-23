@@ -79,12 +79,15 @@ nsidc_jenkins::jobs:
 
   "%{hiera('project')}_A3_Integration_Tests":
     workspace: "%{hiera('workspace')}/integration"
-    description: Run all tests for the stack on the integration VM.
+    description: |
+      Run all tests for the stack on the integration VM.
+
+      NOTE: The test output will be interleaved with other outputs. Search for 'runner' to find the relevant rows.
     command: |
       set -ex
       environment=integration
       vagrant nsidc hijack --env=${environment} --force
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./integration-test/run_integration_tests.sh local"
+      vagrant nsidc ssh --env=${environment} -c "cd /opt/deploy/hermes && ./integration-test/run_test_stack.sh"
 
 # QA ==========================================================
 
@@ -125,13 +128,16 @@ nsidc_jenkins::jobs:
 
   "%{hiera('project')}_B3_QA_Integration_Tests":
     workspace: "%{hiera('workspace')}/qa"
-    description: Run all tests for the stack on the QA VM. CURRENTLY BROKEN!!!
+    description: |
+      Run all tests for the stack on the QA VM.
+
+      NOTE: The test output will be interleaved with other outputs. Search for 'runner' to find the relevant rows.
     command: |
       set -ex
       environment=qa
       rm -rf .vagrant-${environment}
       vagrant nsidc hijack --env=${environment}
-      vagrant nsidc ssh --env=${environment} -c "cd /home/vagrant/hermes/hermes-stack && ./integration-test/run_integration_tests.sh local"
+      vagrant nsidc ssh --env=${environment} -c "cd /opt/deploy/hermes && ./integration-test/run_test_stack.sh"
 
   # ============================================================================
   # Release new production/staging machines.
