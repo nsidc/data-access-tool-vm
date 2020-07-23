@@ -205,7 +205,7 @@ if $::environment == 'ci' {
       require => Exec['install docker and compose'],
     } ->
     exec { 'start hermes-stack':
-      command => '/bin/bash -lc "/home/vagrant/hermes/hermes-stack/scripts/deploy.sh"',
+      command => "/bin/bash -lc '/home/vagrant/hermes/hermes-stack/deploy/deploy ${::environment}'",
       cwd     => "${stackdir}",
       user    => 'vagrant',
       require => [Exec['install docker and compose'],
