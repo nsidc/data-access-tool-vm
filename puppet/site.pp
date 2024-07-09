@@ -112,7 +112,11 @@ if $::environment == 'ci' {
     provider => git,
     source   => 'git@bitbucket.org:nsidc/hermes-api.git',
     owner    => 'vagrant',
-    group    => 'vagrant'
+    group    => 'vagrant',
+    # NOTE: hermes-api has `mypy-stubs` as a submodule. By default, puppet will
+    # try to clone the submodule, but that fails w/ a permissions issue. Not
+    # sure why.
+    submodules => false,
   }
 
   package { 'jq': }
