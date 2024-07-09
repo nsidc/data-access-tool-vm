@@ -104,7 +104,7 @@ if $::environment == 'ci' {
     source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
     owner    => 'vagrant',
     group    => 'vagrant',
-    revision => 'hermes-api-dev',
+    revision => 'master',
   } ->
   vcsrepo { 'clone hermes-api':
     ensure   => present,
