@@ -1,20 +1,20 @@
 classes:
   - nsidc_miniconda
 
+# Note, this used to install `bumpversion`, but that clashes w/ the base
+# env. Users should create their own env w/ necessary dev deps manually.
 nsidc_miniconda::install:
   /opt/miniconda:
-    version: '4.3.27'
+    version: '23.7.4'
     owner: vagrant
     group: vagrant
-    build: true
+    build: false
     config:
       location: /home/vagrant
       channels:
         anaconda_nsidc_main: true
         anaconda_nsidc_dev: true
         conda_forge: true
-    packages:
-    - bumpversion==0.5.3
 
 nsidc_nfs::sharemounts:
   /share/apps/hermes-all:

@@ -69,8 +69,15 @@ if $::environment == 'ci' {
   }
 
 } else {
-  exec { 'install docker and compose':
-    command => '/vagrant/puppet/scripts/install-docker.sh',
+  class {'docker':
+    version      => '5:26.1.1-1~ubuntu.22.04~jammy',
+    docker_users => ['vagrant'],
+  }
+
+  class {'docker::compose':
+    ensure  => 'present',
+    # TODO: update version
+    # version => '1.28.5',
   }
 
   # Because our containers must run as non-root users to write on NFS, we need to pre-chown all volumes
@@ -96,7 +103,8 @@ if $::environment == 'ci' {
     provider => git,
     source   => 'git@bitbucket.org:nsidc/hermes-stack.git',
     owner    => 'vagrant',
-    group    => 'vagrant'
+    group    => 'vagrant',
+    revision => 'master',
   } ->
   vcsrepo { 'clone hermes-api':
     ensure   => present,
@@ -104,7 +112,11 @@ if $::environment == 'ci' {
     provider => git,
     source   => 'git@bitbucket.org:nsidc/hermes-api.git',
     owner    => 'vagrant',
-    group    => 'vagrant'
+    group    => 'vagrant',
+    # NOTE: hermes-api has `mypy-stubs` as a submodule. By default, puppet will
+    # try to clone the submodule, but that fails w/ a permissions issue. Not
+    # sure why.
+    submodules => false,
   }
 
   package { 'jq': }
@@ -112,7 +124,7 @@ if $::environment == 'ci' {
   if $environment == 'dev' {
 
     exec { 'setup node':
-      command => 'curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && sudo apt-get install -y nodejs',
+      command => 'curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs',
       path    => '/usr/bin'
     }
 
@@ -146,7 +158,7 @@ if $::environment == 'ci' {
   file { "${stackdir}/scripts/docker-cleanup.sh":
     ensure  => present,
     mode    => 'u+x',
-    require => [Exec['install docker and compose'], Vcsrepo['clone hermes-stack']],
+    require => [Class['docker'], Vcsrepo['clone hermes-stack']],
   } ->
   cron { 'docker-cleanup':
     command => "${stackdir}/scripts/docker-cleanup.sh",
@@ -167,7 +179,7 @@ if $::environment == 'ci' {
       cwd     => "${stackdir}",
       user    => 'vagrant',
       timeout => 1000,
-      require => [Exec['install docker and compose'],
+      require => [Class['docker'],
                   File["${stackdir}/service-versions.env"],
                   Exec['clone all the hermes repos'],
                   File['envvars']],
@@ -184,7 +196,7 @@ if $::environment == 'ci' {
       # resolves by simply trying again; finding the root of that problem would be
       # better than retrying here
       tries   => 3,
-      require => [Exec['install docker and compose'],
+      require => [Class['docker'],
                   File['envvars'],
                   Package['jq'],
                   File[$docker_nfs_volumes],
@@ -202,13 +214,13 @@ if $::environment == 'ci' {
       command => 'docker swarm init --advertise-addr eth0:2377 --listen-addr eth0:2377 || true',
       user    => 'vagrant',
       path    => ['/usr/bin', '/usr/sbin',],
-      require => Exec['install docker and compose'],
+      require => Class['docker'],
     } ->
     exec { 'start hermes-stack':
       command => "/bin/bash -lc '/home/vagrant/hermes/hermes-stack/deploy/deploy ${::environment}'",
       cwd     => "${stackdir}",
       user    => 'vagrant',
-      require => [Exec['install docker and compose'],
+      require => [Class['docker'],
                   File["${stackdir}/service-versions.env"],
                   Exec['swarm'],
                   File['envvars'],
