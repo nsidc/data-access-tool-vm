@@ -9,8 +9,8 @@ NSIDC VM configuration for the Data Access Tool (DAT).
 
 The DAT is composed of:
 
-* [data-access-tool-ui]()
-* [data-access-tool-backend]()
+* [data-access-tool-ui](https://github.com/nsidc/data-access-tool-ui)
+* [data-access-tool-backend](https://github.com/nsidc/data-access-tool-backend)
 
 
 See the [LICENSE](LICENSE) for details on permissions and warranties. Please contact
