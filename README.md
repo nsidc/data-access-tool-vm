@@ -2,6 +2,13 @@
   <img alt="NSIDC logo" src="https://nsidc.org/themes/custom/nsidc/logo.svg" width="150" />
 </p>
 
+> [!WARNING]
+> This VM project currently uses `hermes` as the project name, which is a legacy
+> of the original ECS-based ordering backend that served the DAT. It uses
+> configurations including secrets from the `hermes` project
+> (e.g.,`EARTHDATA_APP_CLIENT_ID`) . Eventually, we may want to update the names
+> to reflect `data-access-tool`.
+
 
 # Data Access Tool VM
 
