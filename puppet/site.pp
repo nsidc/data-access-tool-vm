@@ -17,7 +17,7 @@ class {'docker::compose':
 
 file { 'envvars':
   ensure  => file,
-  content => vault_template('/vagrant/puppet/templates/hermes.erb'),
+  content => vault_template('/vagrant/puppet/templates/dat.erb'),
   path    => '/etc/profile.d/envvars.sh'
 }
 
@@ -27,7 +27,7 @@ file { '/home/vagrant/data-access-tool':
 } ->
 vcsrepo { 'clone data-access-tool-backend':
   ensure   => present,
-  path     => '/home/vagrant/hermes/data-access-tool-backend',
+  path     => '/home/vagrant/data-access-tool/data-access-tool-backend',
   provider => git,
   source   => 'git@github.com:nsidc/data-access-tool-backend.git',
   owner    => 'vagrant',

@@ -1,4 +1,4 @@
-project: hermes
+project: data-access-tool
 gitrepo: git@bitbucket.org:nsidc/hermes-vm.git
 vsphere:
   template:

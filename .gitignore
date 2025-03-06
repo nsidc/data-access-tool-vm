@@ -1,0 +1,33 @@
+node_modules/
+dist/
+dist-react/
+spec-react/
+src/lib/
+src/css/
+logs/
+build/
+sauce_connect.log*
+.DS_Store
+/.projectile
+**/.tern-port
+npm-debug.log
+src/jspm_packages
+.dir-locals.el
+
+.Xauthority*
+
+# begin vagrant-nsidc
+#
+# the following entries were added by the vagrant-nsidc plugin when you ran
+# `vagrant nsidc init`
+
+.vagrant*/
+
+.nsidc-project.yaml
+
+/puppet/.librarian/
+/puppet/.tmp/
+/puppet/Puppetfile.lock
+/puppet/modules/
+
+# end vagrant-nsidc
