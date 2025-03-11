@@ -2,6 +2,8 @@ export EARTHDATA_APP_USERNAME="<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/
 export EARTHDATA_APP_PASSWORD="<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/data-access-tool', 'edl_application_password') %>"
 export EARTHDATA_APP_CLIENT_ID="<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/data-access-tool', 'edl_application_id') %>"
 
+export DAT_FLASK_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/data-access-tool', 'flask_secret_key') %>'
+
 export DAT_HOST="<%= @cname %>"
 
 export NSIDC_ENVIRONMENT="<%= @environment %>"
