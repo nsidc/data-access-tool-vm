@@ -1,6 +1,5 @@
-project: hermes
+project: data-access-tool
 gitrepo: git@bitbucket.org:nsidc/hermes-vm.git
 vsphere:
   template:
-    default: jammy64-nsidc-puppet7
-    ci: jammy64-docker-puppet7-jenkins2
+    default: jammy64-docker-puppet7

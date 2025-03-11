@@ -2,5 +2,4 @@ lookup_options:
   '^.*':
     merge: deep
 
-classes:
-  - nsidc_nfs
+classes: []
