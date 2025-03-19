@@ -4,6 +4,7 @@ export EARTHDATA_APP_CLIENT_ID="<%= vault_get('vault.apps.int.nsidc.org', 'nsidc
 
 export DAT_FLASK_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/apps/data-access-tool', 'flask_secret_key') %>'
 
+# TODO: do we need this? does it need to change in prod?
 export DAT_HOST="<%= @cname %>"
 
 export NSIDC_ENVIRONMENT="<%= @environment %>"
