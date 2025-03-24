@@ -40,11 +40,8 @@ if $::environment == 'dev' {
     require => [Vcsrepo['clone data-access-tool-backend']],
   }
 
-  # Bring up the stack with docker compose up --detach.
-  # TODO: this does not work. The images get built but the stack is not up,
-  # despite the logs showing success...
-  exec { 'up-docker-stack':
-    command => 'bash -lc "nohup docker compose up --detach"',
+  exec { 'build-docker-stack':
+    command => 'docker compose build',
     path => '/usr/bin/',
     cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
     user => 'vagrant',
@@ -54,17 +51,21 @@ if $::environment == 'dev' {
       Class['docker'],
       Class['docker::compose'],
     ],
+  } ->
+  exec { 'up-docker-stack':
+    command => '/vagrant/scripts/deploy.sh',
+    path => '/usr/bin/',
+    user => 'vagrant',
+    require => [
+      Vcsrepo['clone data-access-tool-backend'],
+      Class['docker'],
+      Class['docker::compose'],
+    ],
   }
 } else {
-  # Bring up the stack with docker compose up --detach.
-  # TODO: this does not work. The images get built but the stack is not up,
-  # despite the logs showing success...
   exec { 'up-docker-stack':
-    # TODO: remove build setep once images are published and we have
-    # version-driven releases
-    command => 'bash -lc "nohup docker compose up --detach"',
+    command => '/vagrant/scripts/deploy.sh',
     path => '/usr/bin/',
-    cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
     user => 'vagrant',
     require => [
       Vcsrepo['clone data-access-tool-backend'],
