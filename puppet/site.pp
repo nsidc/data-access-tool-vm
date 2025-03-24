@@ -39,23 +39,36 @@ if $::environment == 'dev' {
     require => [Vcsrepo['clone data-access-tool-backend']],
   }
 
+  vcsrepo { 'clone data-access-tool-server':
+    ensure   => present,
+    path     => '/home/vagrant/data-access-tool/data-access-tool-server',
+    provider => git,
+    source   => 'git@github.com:nsidc/data-access-tool-server.git',
+    owner    => 'vagrant',
+    group    => 'vagrant',
+    revision => 'main',
+  }
+
   exec { 'build-docker-stack':
-    command => 'docker compose build',
+    command => 'bash -lc "docker compose build"',
     path => '/usr/bin/',
     cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
     user => 'vagrant',
     require => [
+      File['envvars'],
       Vcsrepo['clone data-access-tool-backend'],
+      Vcsrepo['clone data-access-tool-server'],
       Exec['setup backend docker-compose-dev'],
       Class['docker'],
       Class['docker::compose'],
     ],
   } ->
   exec { 'up-docker-stack':
-    command => '/vagrant/scripts/deploy.sh',
+    command => 'bash -lc "/vagrant/scripts/deploy.sh"',
     path => '/usr/bin/',
     user => 'vagrant',
     require => [
+      File['envvars'],
       Vcsrepo['clone data-access-tool-backend'],
       Class['docker'],
       Class['docker::compose'],
@@ -63,10 +76,11 @@ if $::environment == 'dev' {
   }
 } else {
   exec { 'up-docker-stack':
-    command => '/vagrant/scripts/deploy.sh',
+    command => 'bash -lc "/vagrant/scripts/deploy.sh"',
     path => '/usr/bin/',
     user => 'vagrant',
     require => [
+      File['envvars'],
       Vcsrepo['clone data-access-tool-backend'],
       Class['docker'],
       Class['docker::compose'],
