@@ -26,8 +26,7 @@ vcsrepo { 'clone data-access-tool-backend':
   source   => 'git@github.com:nsidc/data-access-tool-backend.git',
   owner    => 'vagrant',
   group    => 'vagrant',
-  # TODO: change this back to `main` once merged.
-  revision => 'dev-and-prod-server-settings',
+  revision => 'main',
 }
 
 if $::environment == 'dev' {
