@@ -1,18 +1,12 @@
 # Load modules and classes
 lookup('classes', {merge => unique}).include
 
-# NOTE: only dev is currently supported.
-
 class {'docker':
-  # TODO: update version
-  # version      => '5:26.1.1-1~ubuntu.22.04~jammy',
   docker_users => ['vagrant'],
 }
 
 class {'docker::compose':
   ensure  => 'present',
-  # TODO: update version
-  # version => '1.28.5',
 }
 
 file { 'envvars':
@@ -33,4 +27,49 @@ vcsrepo { 'clone data-access-tool-backend':
   owner    => 'vagrant',
   group    => 'vagrant',
   revision => 'main',
+}
+
+if $::environment == 'dev' {
+  # Setup symlink for docker-compose dev
+  exec { 'setup backend docker-compose-dev':
+    command => 'ln -s docker-compose.dev.yml docker-compose.override.yml',
+    path => '/usr/bin/',
+    cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
+    unless => 'test -f /home/vagrant/data-access-tool/data-access-tool-backend/docker-compose.override.yml',
+    require => [Vcsrepo['clone data-access-tool-backend']],
+  }
+
+  exec { 'build-docker-stack':
+    command => 'docker compose build',
+    path => '/usr/bin/',
+    cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
+    user => 'vagrant',
+    require => [
+      Vcsrepo['clone data-access-tool-backend'],
+      Exec['setup backend docker-compose-dev'],
+      Class['docker'],
+      Class['docker::compose'],
+    ],
+  } ->
+  exec { 'up-docker-stack':
+    command => '/vagrant/scripts/deploy.sh',
+    path => '/usr/bin/',
+    user => 'vagrant',
+    require => [
+      Vcsrepo['clone data-access-tool-backend'],
+      Class['docker'],
+      Class['docker::compose'],
+    ],
+  }
+} else {
+  exec { 'up-docker-stack':
+    command => '/vagrant/scripts/deploy.sh',
+    path => '/usr/bin/',
+    user => 'vagrant',
+    require => [
+      Vcsrepo['clone data-access-tool-backend'],
+      Class['docker'],
+      Class['docker::compose'],
+    ],
+  }
 }
