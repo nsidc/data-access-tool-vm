@@ -29,15 +29,21 @@ vcsrepo { 'clone data-access-tool-backend':
   revision => 'main',
 }
 
+# Setup symlink for docker-compose
+$override_file = $environment ? {
+  'dev'         => 'docker-compose.dev.yml',
+  'integration' => 'docker-compose.integration.yml',
+  default       => 'docker-compose.production.yml',
+}
+exec { 'setup backend docker-compose override':
+  command => "ln -s ${override_file} docker-compose.override.yml",
+  path => '/usr/bin/',
+  cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
+  unless => 'test -f /home/vagrant/data-access-tool/data-access-tool-backend/docker-compose.override.yml',
+  require => [Vcsrepo['clone data-access-tool-backend']],
+}
+
 if $::environment == 'dev' {
-  # Setup symlink for docker-compose dev
-  exec { 'setup backend docker-compose-dev':
-    command => 'ln -s docker-compose.dev.yml docker-compose.override.yml',
-    path => '/usr/bin/',
-    cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
-    unless => 'test -f /home/vagrant/data-access-tool/data-access-tool-backend/docker-compose.override.yml',
-    require => [Vcsrepo['clone data-access-tool-backend']],
-  }
 
   vcsrepo { 'clone data-access-tool-server':
     ensure   => present,
@@ -58,7 +64,7 @@ if $::environment == 'dev' {
       File['envvars'],
       Vcsrepo['clone data-access-tool-backend'],
       Vcsrepo['clone data-access-tool-server'],
-      Exec['setup backend docker-compose-dev'],
+      Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
     ],
@@ -70,6 +76,7 @@ if $::environment == 'dev' {
     require => [
       File['envvars'],
       Vcsrepo['clone data-access-tool-backend'],
+      Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
     ],
@@ -82,6 +89,7 @@ if $::environment == 'dev' {
     require => [
       File['envvars'],
       Vcsrepo['clone data-access-tool-backend'],
+      Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
     ],
