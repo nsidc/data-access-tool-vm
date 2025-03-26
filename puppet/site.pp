@@ -15,10 +15,12 @@ file { 'envvars':
   path    => '/etc/profile.d/envvars.sh'
 }
 
-file { '/home/vagrant/data-access-tool':
-  ensure => directory,
-  owner  => vagrant,
-} ->
+if $::environment in ['dev', 'integration'] {
+  $dat_backend_revision = 'main'
+} else {
+  $dat_backend_revision = strip(file('/vagrant/DAT_BACKEND_VERSION.txt'))
+}
+
 vcsrepo { 'clone data-access-tool-backend':
   ensure   => present,
   path     => '/home/vagrant/data-access-tool/data-access-tool-backend',
@@ -26,7 +28,7 @@ vcsrepo { 'clone data-access-tool-backend':
   source   => 'git@github.com:nsidc/data-access-tool-backend.git',
   owner    => 'vagrant',
   group    => 'vagrant',
-  revision => 'main',
+  revision => $dat_backend_revision,
 }
 
 # Setup symlink for docker-compose
@@ -45,16 +47,6 @@ exec { 'setup backend docker-compose override':
 
 if $::environment == 'dev' {
 
-  vcsrepo { 'clone data-access-tool-server':
-    ensure   => present,
-    path     => '/home/vagrant/data-access-tool/data-access-tool-server',
-    provider => git,
-    source   => 'git@github.com:nsidc/data-access-tool-server.git',
-    owner    => 'vagrant',
-    group    => 'vagrant',
-    revision => 'main',
-  }
-
   exec { 'build-docker-stack':
     command => 'bash -lc "docker compose build"',
     path => '/usr/bin/',
@@ -63,7 +55,6 @@ if $::environment == 'dev' {
     require => [
       File['envvars'],
       Vcsrepo['clone data-access-tool-backend'],
-      Vcsrepo['clone data-access-tool-server'],
       Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
