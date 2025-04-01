@@ -9,12 +9,6 @@ class {'docker::compose':
   ensure  => 'present',
 }
 
-file { 'envvars':
-  ensure  => file,
-  content => vault_template('/vagrant/puppet/templates/dat.erb'),
-  path    => '/etc/profile.d/envvars.sh'
-}
-
 if $::environment in ['dev', 'integration'] {
   $dat_backend_revision = 'main'
 } else {
@@ -30,6 +24,38 @@ vcsrepo { 'clone data-access-tool-backend':
   group    => 'vagrant',
   revision => $dat_backend_revision,
 }
+
+$nfs_share_logs_dir = $::environment ? {
+  'dev'   => "/share/logs/data_access_tool/${::environment}/${provisioned_by}",
+  default => "/share/logs/data_access_tool/${::environment}"
+}
+
+file { 'envvars':
+  ensure  => file,
+  content => vault_template('/vagrant/puppet/templates/dat.erb'),
+  path    => '/etc/profile.d/envvars.sh'
+}
+
+nsidc_nfs::sharemount { '/share/logs/data_access_tool':
+  options => 'rw',
+  project => 'logs',
+  share   => "data_access_tool",
+}->
+exec { 'make_logs_subdir':
+  command => "mkdir -p ${nfs_share_logs_dir}",
+  path => '/usr/bin/',
+  user => 'vagrant',
+}
+
+file { 'nginx_logrotate':
+  ensure  => file,
+  content => template('/vagrant/puppet/templates/logrotate_nginx.erb'),
+  path    => '/etc/logrotate.d/nginx',
+  owner   => 'root',
+  group   => 'root',
+  require => [Exec['make_logs_subdir']],
+}
+
 
 # Setup symlink for docker-compose
 $override_file = $environment ? {
@@ -70,6 +96,7 @@ if $::environment == 'dev' {
       Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
+      Exec['make_logs_subdir'],
     ],
   }
 } else {
@@ -83,6 +110,7 @@ if $::environment == 'dev' {
       Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
+      Exec['make_logs_subdir'],
     ],
   }
 }
