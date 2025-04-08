@@ -45,6 +45,10 @@ exec { 'make_logs_subdir':
   command => "mkdir -p ${nfs_share_logs_dir}",
   path => '/usr/bin/',
   user => 'vagrant',
+}->
+exec {'chown_logs_subdir':
+  command => "chown -R vagrant:vagrant ${nfs_share_logs_dir}",
+  path => '/usr/bin/',
 }
 
 file { 'nginx_logrotate':
@@ -96,7 +100,7 @@ if $::environment == 'dev' {
       Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
-      Exec['make_logs_subdir'],
+      Exec['chown_logs_subdir'],
     ],
   }
 } else {
@@ -110,7 +114,7 @@ if $::environment == 'dev' {
       Exec['setup backend docker-compose override'],
       Class['docker'],
       Class['docker::compose'],
-      Exec['make_logs_subdir'],
+      Exec['chown_logs_subdir'],
     ],
   }
 }
