@@ -8,3 +8,5 @@ export DAT_FLASK_SECRET_KEY='<%= vault_get('vault.apps.int.nsidc.org', 'nsidc/ap
 export DAT_HOST="<%= @cname %>"
 
 export NSIDC_ENVIRONMENT="<%= @environment %>"
+
+export LOGS_SHARE_PATH="<%= @nfs_share_logs_dir %>"
