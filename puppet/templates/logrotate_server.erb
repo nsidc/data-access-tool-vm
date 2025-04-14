@@ -1,0 +1,23 @@
+<%= @local_logs_dir %>/server/*access*.log {
+    su vagrant vagrant
+    weekly
+    rotate -1
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    olddir <%= @nfs_share_logs_dir %>/server/
+}
+
+<%= @local_logs_dir %>/server/*error*.log {
+    su vagrant vagrant
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    olddir <%= @nfs_share_logs_dir %>/server/
+}

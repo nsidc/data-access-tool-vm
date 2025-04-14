@@ -30,6 +30,14 @@ $nfs_share_logs_dir = $::environment ? {
   default => "/share/logs/data_access_tool/${::environment}"
 }
 
+$local_logs_dir = "/home/vagrant/data-access-tool/data-access-tool-backend/logs"
+
+exec { 'make_local_logs_dir':
+  command => "mkdir -p ${local_logs_dir}/server",
+  path => '/usr/bin/',
+  user => 'vagrant',
+}
+
 file { 'envvars':
   ensure  => file,
   content => vault_template('/vagrant/puppet/templates/dat.erb'),
@@ -42,7 +50,7 @@ nsidc_nfs::sharemount { '/share/logs/data_access_tool':
   share   => "data_access_tool",
 }->
 exec { 'make_logs_subdir':
-  command => "mkdir -p ${nfs_share_logs_dir}",
+  command => "mkdir -p ${nfs_share_logs_dir}/server",
   path => '/usr/bin/',
   user => 'vagrant',
 }->
@@ -53,8 +61,8 @@ exec {'chown_logs_subdir':
 
 file { 'nginx_logrotate':
   ensure  => file,
-  content => template('/vagrant/puppet/templates/logrotate_nginx.erb'),
-  path    => '/etc/logrotate.d/nginx',
+  content => template('/vagrant/puppet/templates/logrotate_server.erb'),
+  path    => '/etc/logrotate.d/server',
   owner   => 'root',
   group   => 'root',
   require => [Exec['make_logs_subdir']],
@@ -101,6 +109,7 @@ if $::environment == 'dev' {
       Class['docker'],
       Class['docker::compose'],
       Exec['chown_logs_subdir'],
+      Exec['make_local_logs_dir'],
     ],
   }
 } else {
@@ -115,6 +124,7 @@ if $::environment == 'dev' {
       Class['docker'],
       Class['docker::compose'],
       Exec['chown_logs_subdir'],
+      Exec['make_local_logs_dir'],
     ],
   }
 }
