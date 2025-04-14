@@ -1,6 +1,6 @@
 <%= @local_logs_dir %>/server/*access*.log {
     su vagrant vagrant
-    size 500M
+    weekly
     rotate -1
     compress
     delaycompress
