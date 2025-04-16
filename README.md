@@ -14,10 +14,14 @@ The DAT is composed of:
 This VM project deploys the backend. The frontend has its own deployment
 mechanism. See that repo for more information.
 
+## Level of Support
 
-See the [LICENSE](LICENSE) for details on permissions and warranties. Please contact
-nsidc@nsidc.org for more information.
+This repository is fully supported by NSIDC. If you discover any problems or
+bugs, please submit an Issue. If you would like to contribute to this
+repository, you may fork the repository and submit a pull request.
 
+See the [LICENSE](LICENSE) for details on permissions and warranties. Please
+contact nsidc@nsidc.org for more information.
 
 ## Releasing a new verison of the DAT backend
 
