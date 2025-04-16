@@ -23,17 +23,9 @@ repository, you may fork the repository and submit a pull request.
 See the [LICENSE](LICENSE) for details on permissions and warranties. Please
 contact nsidc@nsidc.org for more information.
 
-## Releasing a new verison of the DAT backend
+## Contributing
 
-The Data Access Tool relies on the
-[data-access-tool-backend](https://github.com/nsidc/data-access-tool-backend),
-which is deployed to a VM via this repo's config.
-
-To release a new version of the DAT backend, update the
-`DAT_BACKEND_VERSION.txt` with the version of the backend you want to
-deploy. This will be the version deployed to all environments except integration
-(`latest`-tagged docker images are used) and dev (`main` is checked out and the
-docker stack is built from scratch).
+See [./doc/DEVELOPMENT.md](./doc/DEVELOPMENT.md).
 
 ## Credit
 
