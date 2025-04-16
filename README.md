@@ -23,6 +23,10 @@ repository, you may fork the repository and submit a pull request.
 See the [LICENSE](LICENSE) for details on permissions and warranties. Please
 contact nsidc@nsidc.org for more information.
 
+## Requirements
+
+* Access to NSIDC's internal Virtual Machine infrastructure.
+
 ## Contributing
 
 See [./doc/DEVELOPMENT.md](./doc/DEVELOPMENT.md).
