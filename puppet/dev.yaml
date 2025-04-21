@@ -1,0 +1,14 @@
+classes:
+  - nsidc_miniconda
+  - nsidc_nfs
+
+nsidc_miniconda::install:
+  /opt/miniconda:
+    python_version: "3"
+    version: 'py312_24.4.0-0'
+    config:
+      channels:
+        anaconda_nsidc_main: false
+        conda_forge: true
+        extra:
+          - nodefaults

@@ -84,6 +84,76 @@ exec { 'setup backend docker-compose override':
 }
 
 if $::environment == 'dev' {
+  # Create conda environment on dev VM for utilities like `bump-my-version`
+  exec { 'conda-init':
+    command       => 'conda init bash',
+    path          => '/opt/miniconda/bin/:/bin:/usr/bin/',
+    user          => 'vagrant',
+    unless        => 'cat /home/vagrant/.bashrc | grep -i "conda initialize"',
+    require       => [
+      Nsidc_miniconda::Install['/opt/miniconda'],
+    ],
+  }
+
+  exec { 'install-mamba':
+    # Install mamba
+    command       => "conda install 'mamba ~=1.5.10'",
+    path          => '/opt/miniconda/bin/:/bin/:/usr/bin/',
+    user          => 'vagrant',
+    unless        => "which mamba",
+    require       => [Nsidc_miniconda::Install['/opt/miniconda']],
+  }
+
+  exec { 'mamba-init':
+    command       => 'mamba init bash',
+    path          => '/opt/miniconda/bin/:/bin/:/usr/bin/',
+    user          => 'vagrant',
+    unless        => 'cat /home/vagrant/.bashrc | grep -i "mamba"',
+    require       => [
+      Nsidc_miniconda::Install['/opt/miniconda'],
+      Exec['install-mamba'],
+    ],
+  }
+
+  exec { 'create-environment':
+    command   => "/bin/bash -lc \"mamba env create -f environment.yml\"",
+    user      => 'vagrant',
+    path      => '/bin/:/opt/miniconda/bin/:/usr/bin/',
+    cwd       => '/home/vagrant/data-access-tool/data-access-tool-backend',
+    timeout   => 1200,
+    logoutput => true,
+    unless    => "conda env list | grep ${conda_env}",
+    require   => [
+      Nsidc_miniconda::Install['/opt/miniconda'],
+      Exec['conda-init'],
+      Exec['mamba-init'],
+      Vcsrepo['clone data-access-tool-backend'],
+    ],
+  }
+
+  exec { 'default_env':
+    command       => "echo 'source activate dat-backend' >> /home/vagrant/.bashrc",
+    path          => '/bin/:/usr/bin/',
+    user          => 'vagrant',
+    unless        => "grep 'source activate dat-backend' /home/vagrant/.bashrc",
+    require       => [
+      Exec['conda-init'],
+      Exec['create-environment'],
+      File[$env_file],
+    ],
+  }
+
+  exec { "pre-commit-install":
+    command   => "/bin/bash -lc \"pre-commit install\"",
+    user      => "vagrant",
+    cwd       => "/home/vagrant/data-access-tool/data-access-tool-backend",
+    path      => "/opt/miniconda/envs/dat-backend/bin/:/usr/bin/",
+    logoutput => true,
+    require   => [
+      Exec['create-environment'],
+      Exec['default_env'],
+    ],
+  }
 
   exec { 'build-docker-stack':
     command => 'bash -lc "docker compose build"',
