@@ -9,5 +9,10 @@ mod "nsidc/nsidc_nfs",
   :git => "git@bitbucket.org:/nsidc/puppet-nsidc-nfs.git",
   :ref => "latest"
 
+# Module to install Continuum Analytics Miniconda
+mod "nsidc/nsidc_miniconda",
+    :git => "git@bitbucket.org:/nsidc/puppet-nsidc-miniconda.git",
+    :ref => 'puppet7'
+
 mod "puppetlabs/vcsrepo"
 mod 'puppetlabs-docker'
