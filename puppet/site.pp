@@ -9,28 +9,13 @@ class {'docker::compose':
   ensure  => 'present',
 }
 
-if $::environment in ['dev', 'integration'] {
-  $dat_backend_revision = 'main'
-} else {
-  $dat_backend_revision = strip(file('/vagrant/DAT_BACKEND_VERSION.txt'))
-}
-
-vcsrepo { 'clone data-access-tool-backend':
-  ensure   => present,
-  path     => '/home/vagrant/data-access-tool/data-access-tool-backend',
-  provider => git,
-  source   => 'git@github.com:nsidc/data-access-tool-backend.git',
-  owner    => 'vagrant',
-  group    => 'vagrant',
-  revision => $dat_backend_revision,
-}
-
+# Logs are rotated here for long-term storage
 $nfs_share_logs_dir = $::environment ? {
   'dev'   => "/share/logs/data_access_tool/${::environment}/${provisioned_by}",
   default => "/share/logs/data_access_tool/${::environment}"
 }
-
-$local_logs_dir = "/home/vagrant/data-access-tool/data-access-tool-backend/logs"
+# Logs are written directly to local storage.
+$local_logs_dir = "/home/vagrant/logs/"
 
 exec { 'make_local_logs_dir':
   command => "mkdir -p ${local_logs_dir}/server",
@@ -68,22 +53,28 @@ file { 'nginx_logrotate':
   require => [Exec['make_logs_subdir']],
 }
 
-
-# Setup symlink for docker-compose
-$override_file = $environment ? {
-  'dev'         => 'docker-compose.dev.yml',
-  'integration' => 'docker-compose.integration.yml',
-  default       => 'docker-compose.production.yml',
-}
-exec { 'setup backend docker-compose override':
-  command => "ln -s ${override_file} docker-compose.override.yml",
-  path => '/usr/bin/',
-  cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
-  unless => 'test -f /home/vagrant/data-access-tool/data-access-tool-backend/docker-compose.override.yml',
-  require => [Vcsrepo['clone data-access-tool-backend']],
-}
-
 if $::environment == 'dev' {
+
+  vcsrepo { 'clone data-access-tool-backend':
+    ensure   => present,
+    path     => '/opt/deploy/data-access-tool-backend',
+    provider => git,
+    source   => 'git@github.com:nsidc/data-access-tool-backend.git',
+    owner    => 'vagrant',
+    group    => 'vagrant',
+    revision => 'da113-garrison-deploy',
+  }
+
+  # Setup symlink for docker-compose
+  exec { 'setup backend docker-compose override':
+    command => "ln -s docker-compose.dev.yml docker-compose.override.yml",
+    path => '/usr/bin/',
+    cwd    => '/opt/deploy/data-access-tool-backend',
+    unless => 'test -f /opt/deploy/data-access-tool-backend/docker-compose.override.yml',
+    require => [Vcsrepo['clone data-access-tool-backend']],
+  }
+
+
   # Create conda environment on dev VM for utilities like `bump-my-version`
   exec { 'conda-init':
     command       => 'conda init bash',
@@ -119,10 +110,10 @@ if $::environment == 'dev' {
     command   => "/bin/bash -lc \"mamba env create -f environment.yml\"",
     user      => 'vagrant',
     path      => '/bin/:/opt/miniconda/bin/:/usr/bin/',
-    cwd       => '/home/vagrant/data-access-tool/data-access-tool-backend',
+    cwd       => '/opt/deploy/data-access-tool-backend',
     timeout   => 1200,
     logoutput => true,
-    unless    => "conda env list | grep ${conda_env}",
+    unless    => "conda env list | grep dat-backend",
     require   => [
       Nsidc_miniconda::Install['/opt/miniconda'],
       Exec['conda-init'],
@@ -146,7 +137,7 @@ if $::environment == 'dev' {
   exec { "pre-commit-install":
     command   => "/bin/bash -lc \"pre-commit install\"",
     user      => "vagrant",
-    cwd       => "/home/vagrant/data-access-tool/data-access-tool-backend",
+    cwd       => "/opt/deploy/data-access-tool-backend",
     path      => "/opt/miniconda/envs/dat-backend/bin/:/usr/bin/",
     logoutput => true,
     require   => [
@@ -158,7 +149,7 @@ if $::environment == 'dev' {
   exec { 'build-docker-stack':
     command => 'bash -lc "docker compose build"',
     path => '/usr/bin/',
-    cwd    => '/home/vagrant/data-access-tool/data-access-tool-backend',
+    cwd    => '/opt/deploy/data-access-tool-backend',
     user => 'vagrant',
     require => [
       File['envvars'],
@@ -169,7 +160,7 @@ if $::environment == 'dev' {
     ],
   } ->
   exec { 'up-docker-stack':
-    command => 'bash -lc "/vagrant/scripts/deploy.sh"',
+    command => 'bash -lc "/vagrant/scripts/deploy_to_dev.sh"',
     path => '/usr/bin/',
     user => 'vagrant',
     require => [
@@ -183,18 +174,6 @@ if $::environment == 'dev' {
     ],
   }
 } else {
-  exec { 'up-docker-stack':
-    command => 'bash -lc "/vagrant/scripts/deploy.sh"',
-    path => '/usr/bin/',
-    user => 'vagrant',
-    require => [
-      File['envvars'],
-      Vcsrepo['clone data-access-tool-backend'],
-      Exec['setup backend docker-compose override'],
-      Class['docker'],
-      Class['docker::compose'],
-      Exec['chown_logs_subdir'],
-      Exec['make_local_logs_dir'],
-    ],
-  }
+  # Non-dev deployments put config specific to them here.
+  # TODO: consider setting up docker swarm for non-dev environments
 }
