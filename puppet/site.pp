@@ -113,7 +113,7 @@ if $::environment == 'dev' {
     cwd       => '/opt/deploy/data-access-tool-backend',
     timeout   => 1200,
     logoutput => true,
-    unless    => "conda env list | grep ${conda_env}",
+    unless    => "conda env list | grep dat-backend",
     require   => [
       Nsidc_miniconda::Install['/opt/miniconda'],
       Exec['conda-init'],
