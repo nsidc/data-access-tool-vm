@@ -175,4 +175,5 @@ if $::environment == 'dev' {
   }
 } else {
   # Non-dev deployments put config specific to them here.
+  # TODO: consider setting up docker swarm for non-dev environments
 }
