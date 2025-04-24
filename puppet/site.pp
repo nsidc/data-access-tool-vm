@@ -62,7 +62,7 @@ if $::environment == 'dev' {
     source   => 'git@github.com:nsidc/data-access-tool-backend.git',
     owner    => 'vagrant',
     group    => 'vagrant',
-    revision => 'da113-garrison-deploy',
+    revision => 'main',
   }
 
   # Setup symlink for docker-compose
