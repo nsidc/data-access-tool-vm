@@ -38,3 +38,16 @@ The [Deploy Project with
 Garrison](https://ci.jenkins-ops-2022.apps.int.nsidc.org/job/Deploy_Project_with_Garrison/)
 job defined in the Ops Jenkins is used by Ops to deploy to staging and
 production.
+
+## Environment variables and secrets
+
+Secrets and runtime configuration values are provided as environemnt variables
+on provisioned VMs.
+
+An ERB template for these environment variables can be found in
+[../puppet/templates/dat.erb](../puppet/templates/dat.erb).
+
+The template gets rendered during provisioning. Secret values are fetched from
+NSIDC's vault instance.
+
+The rendered envvar file gets placed in `/etc/profile.d/envvars.sh`.
