@@ -51,3 +51,25 @@ The template gets rendered during provisioning. Secret values are fetched from
 NSIDC's vault instance.
 
 The rendered envvar file gets placed in `/etc/profile.d/envvars.sh`.
+
+## Logs
+
+Application logs are stored in `/home/vagrant/logs/` on VMs. These logs are
+rotated to NFS (`/share/logs/data_access_tool/{environment}`) for long-term
+storage on a weekly basis.
+
+The
+[../puppet/templates/logrotate_server.erb](../puppet/templates/logrotate_server.erb)
+template is repsonsible for setting up `logrotate` to do the rotation from the
+VM's local disk to NFS. This template gets rendered to
+`/etc/logrotate.d/server`.
+
+Logrotation can be manually triggered via:
+
+```
+sudo logrotate -f /etc/logrotate.d/server
+```
+
+To learn more about the DAT application logs, see the
+[data-access-tool-backend](https://github.com/nsidc/data-access-tool-backend)
+documentation.
