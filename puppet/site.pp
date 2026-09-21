@@ -2,6 +2,7 @@
 lookup('classes', {merge => unique}).include
 
 class {'docker':
+  ensure  => 'present',
   docker_users => ['vagrant'],
 }
 
@@ -130,7 +131,7 @@ if $::environment == 'dev' {
     require       => [
       Exec['conda-init'],
       Exec['create-environment'],
-      File[$env_file],
+      File['envvars'],
     ],
   }
 
