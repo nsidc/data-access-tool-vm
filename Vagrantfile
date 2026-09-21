@@ -18,6 +18,11 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provision :shell do |s|
+    s.name = 'apt-get upgrade'
+    s.inline = 'DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" upgrade -y'
+  end
+
+  config.vm.provision :shell do |s|
     s.name = 'librarian-puppet install'
     s.inline = 'cd /vagrant/puppet && librarian-puppet install --path=./modules'
   end
