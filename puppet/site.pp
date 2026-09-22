@@ -54,6 +54,24 @@ file { 'nginx_logrotate':
   require => [Exec['make_logs_subdir']],
 }
 
+# Open ports for webserver
+exec { 'open port 80':
+  command => 'iptables -A INPUT -p tcp --dport 80 -j ACCEPT',
+  path => ['/usr/local/bin','/usr/bin', '/bin', '/usr/sbin'],
+  user => 'root',
+} ->
+exec { 'open port 443':
+  command => 'iptables -A INPUT -p tcp --dport 443 -j ACCEPT',
+  path => ['/usr/local/bin','/usr/bin', '/bin', '/usr/sbin'],
+  user => 'root',
+} ->
+exec { 'save port changes':
+  command => 'iptables-save --file /etc/iptables/rules.v4',
+  path => ['/usr/local/bin','/usr/bin', '/bin', '/usr/sbin'],
+  user => 'root',
+}
+
+
 if $::environment == 'dev' {
 
   vcsrepo { 'clone data-access-tool-backend':
@@ -172,6 +190,7 @@ if $::environment == 'dev' {
       Class['docker::compose'],
       Exec['chown_logs_subdir'],
       Exec['make_local_logs_dir'],
+      Exec['save port changes'],
     ],
   }
 } else {
