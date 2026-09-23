@@ -5,7 +5,7 @@ classes:
 nsidc_miniconda::install:
   /opt/miniconda:
     python_version: "3"
-    version: 'py312_24.4.0-0'
+    version: 'py314_26.7.1-0'
     config:
       channels:
         anaconda_nsidc_main: false
