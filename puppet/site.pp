@@ -107,22 +107,11 @@ if $::environment == 'dev' {
 
   exec { 'install-mamba':
     # Install mamba
-    command       => "conda install 'mamba ~=1.5.10'",
+    command       => "conda install 'mamba ~=2.9.0'",
     path          => '/opt/miniconda/bin/:/bin/:/usr/bin/',
     user          => 'vagrant',
     unless        => "which mamba",
     require       => [Nsidc_miniconda::Install['/opt/miniconda']],
-  }
-
-  exec { 'mamba-init':
-    command       => 'mamba init bash',
-    path          => '/opt/miniconda/bin/:/bin/:/usr/bin/',
-    user          => 'vagrant',
-    unless        => 'cat /home/vagrant/.bashrc | grep -i "mamba"',
-    require       => [
-      Nsidc_miniconda::Install['/opt/miniconda'],
-      Exec['install-mamba'],
-    ],
   }
 
   exec { 'create-environment':
@@ -136,7 +125,6 @@ if $::environment == 'dev' {
     require   => [
       Nsidc_miniconda::Install['/opt/miniconda'],
       Exec['conda-init'],
-      Exec['mamba-init'],
       Vcsrepo['clone data-access-tool-backend'],
     ],
   }
